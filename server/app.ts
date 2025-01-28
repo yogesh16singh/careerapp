@@ -11,6 +11,7 @@ import notificationRoute from "./routes/notification.route";
 import analyticsRouter from "./routes/analytics.route";
 import layoutRouter from "./routes/layout.route";
 import { rateLimit } from "express-rate-limit";
+import counselorRouter from "./routes/counselor.route";
 
 app.use(cors());
 
@@ -35,6 +36,7 @@ app.use(
   "/api/v1",
   userRouter,
   courseRouter,
+  counselorRouter,
   orderRouter,
   notificationRoute,
   analyticsRouter,

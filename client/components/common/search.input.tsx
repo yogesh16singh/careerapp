@@ -19,6 +19,7 @@ import { widthPercentageToDP } from "react-native-responsive-screen";
 export default function SearchInput({ homeScreen }: { homeScreen?: boolean }) {
   const [value, setValue] = useState("");
   const [courses, setcourses] = useState([]);
+  const [counselors, setCounselors] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
 
   useEffect(() => {
@@ -34,7 +35,20 @@ export default function SearchInput({ homeScreen }: { homeScreen?: boolean }) {
         console.log(error);
       });
   }, []);
-
+  useEffect(() => {
+    axios
+      .get(`${SERVER_URI}/get-counselors`)
+      .then((res: any) => {
+        console.log("res", res.data.counselors);
+        setCounselors(res.data.counselors);
+        if (!homeScreen) {
+          setCounselors(res.data.counselors);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
   useEffect(() => {
     if (homeScreen && value === "") {
       setFilteredCourses([]);
