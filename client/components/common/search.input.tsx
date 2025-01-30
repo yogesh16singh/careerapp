@@ -6,7 +6,9 @@ import {
   FlatList,
   Text,
   Image,
+  ScrollView,
 } from "react-native";
+import { FontAwesome5 } from "@expo/vector-icons";
 import { useFonts, Nunito_700Bold } from "@expo-google-fonts/nunito";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
@@ -16,33 +18,70 @@ import { router } from "expo-router";
 import CourseCard from "../cards/course.card";
 import { widthPercentageToDP } from "react-native-responsive-screen";
 
+const dummycounselors = [
+  {
+    _id: "1",
+    name: "Laxman Singh",
+    expertise: "Software Development",
+    experience: "1 year experience",
+    availability: "Monday-Friday, 9 AM - 5 PM",
+    image: require("@/assets/avatar.png"),
+  },
+  {
+    _id: "2",
+    name: "Sarah Johnson",
+    expertise: "Career Development",
+    experience: "5 years experience",
+    availability: "Tuesday-Saturday, 10 AM - 6 PM",
+    image: require("@/assets/avatar.png"),
+  },
+  {
+    _id: "3",
+    name: "Michael Chen",
+    expertise: "Life Coaching",
+    experience: "3 years experience",
+    availability: "Monday-Friday, 11 AM - 7 PM",
+    image: require("@/assets/avatar.png"),
+  },
+  {
+    _id: "4",
+    name: "Sarah Johnson",
+    expertise: "Career Development",
+    experience: "5 years experience",
+    availability: "Tuesday-Saturday, 10 AM - 6 PM",
+    image: require("@/assets/avatar.png"),
+  },
+  {
+    _id: "5",
+    name: "Michael Chen",
+    expertise: "Life Coaching",
+    experience: "3 years experience",
+    availability: "Monday-Friday, 11 AM - 7 PM",
+    image: require("@/assets/avatar.png"),
+  },
+ 
+];
+type CounselorsType = {
+  _id: string;
+  name: string;
+  expertise: string;
+  experience: string;
+  availability: string;
+  image: string;
+};
 export default function SearchInput({ homeScreen }: { homeScreen?: boolean }) {
   const [value, setValue] = useState("");
-  const [courses, setcourses] = useState([]);
-  const [counselors, setCounselors] = useState([]);
-  const [filteredCourses, setFilteredCourses] = useState([]);
+  const [counselors, setCounselors] = useState(dummycounselors);
+  const [filteredCounselors, setFilteredCounselors] = useState<CounselorsType[]>([]);
 
-  useEffect(() => {
-    axios
-      .get(`${SERVER_URI}/get-courses`)
-      .then((res: any) => {
-        setcourses(res.data.courses);
-        if (!homeScreen) {
-          setFilteredCourses(res.data.courses);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
   useEffect(() => {
     axios
       .get(`${SERVER_URI}/get-counselors`)
       .then((res: any) => {
         console.log("res", res.data.counselors);
-        setCounselors(res.data.counselors);
+        // setCounselors(res.data.counselors);
         if (!homeScreen) {
-          setCounselors(res.data.counselors);
+          // setFilteredCounselors(res.data.counselors);
         }
       })
       .catch((error) => {
@@ -51,16 +90,16 @@ export default function SearchInput({ homeScreen }: { homeScreen?: boolean }) {
   }, []);
   useEffect(() => {
     if (homeScreen && value === "") {
-      setFilteredCourses([]);
+      setFilteredCounselors([]);
     } else if (value) {
-      const filtered = courses.filter((course: CoursesType) =>
-        course.name.toLowerCase().includes(value.toLowerCase())
+      const filtered = counselors?.filter((counselor: CounselorsType) =>
+        counselor.name.toLowerCase().includes(value.toLowerCase())
       );
-      setFilteredCourses(filtered);
+      setFilteredCounselors(filtered);
     } else if (!homeScreen) {
-      setFilteredCourses(courses);
+      setFilteredCounselors(counselors);
     }
-  }, [value, courses]);
+  }, [value, counselors]);
 
   let [fontsLoaded, fontError] = useFonts({
     Nunito_700Bold,
@@ -121,20 +160,52 @@ export default function SearchInput({ homeScreen }: { homeScreen?: boolean }) {
           </TouchableOpacity>
         </View>
       </View>
-      <View style={{ paddingHorizontal: 10 }}>
-        <FlatList
-          data={filteredCourses}
-          keyExtractor={(item: CoursesType) => item._id}
-          renderItem={
-            homeScreen
-              ? renderCourseItem
-              : ({ item }) => <CourseCard item={item} key={item._id} />
-          }
-        />
+      <View style={styles.container}>
+        <View style={styles.filterContainer}>
+          <TouchableOpacity style={styles.filterButton}>
+            <Text>Availability ▼</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.filterButton}>
+            <Text>Expertise ▼</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.filterButton}>
+            <Text>Experience ▼</Text>
+          </TouchableOpacity>
+        </View>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={true}>
+          <View style={{ paddingHorizontal: 4 }}>
+            <FlatList
+              data={counselors}
+              keyExtractor={(item: CounselorsType) => item._id}
+              renderItem={({ item }: { item: CounselorsType }) => (
+                <View style={styles.card}>
+                  <View style={styles.cardContent}>
+                    <View>
+                      <Text style={styles.name}>{item.name}</Text>
+                      <Text style={styles.expertise}>{item.expertise}</Text>
+                      <View style={styles.infoRow}>
+                        <FontAwesome5 name="briefcase" size={16} color="#555" />
+                        <Text style={styles.infoText}>{item.experience}</Text>
+                      </View>
+                      <View style={styles.infoRow}>
+                        <FontAwesome5 name="clock" size={16} color="#555" />
+                        <Text style={styles.infoText}>{item.availability}</Text>
+                      </View>
+                    </View>
+                    <Image source={item.image} style={styles.profileImage} />
+                  </View>
+                  <TouchableOpacity style={styles.contactButton}>
+                    <Text style={styles.contactButtonText}>Contact Now</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            />
+          </View>
+        </ScrollView>
       </View>
       {!homeScreen && (
         <>
-          {filteredCourses?.length === 0 && (
+          {filteredCounselors?.length === 0 && (
             <Text
               style={{
                 textAlign: "center",
@@ -186,5 +257,68 @@ export const styles = StyleSheet.create({
     paddingVertical: 10,
     width: 271,
     height: 48,
+  },
+  container: {
+    padding: 15,
+    marginBottom: 180,
+  },
+  filterContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 15,
+  },
+  filterButton: {
+    padding: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 10,
+  },
+  card: {
+    backgroundColor: "white",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cardContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  expertise: {
+    color: "gray",
+    marginBottom: 5,
+  },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 3,
+  },
+  infoText: {
+    marginLeft: 5,
+    color: "#555",
+  },
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  contactButton: {
+    backgroundColor: "#007BFF",
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  contactButtonText: {
+    color: "white",
+    textAlign: "center",
   },
 });

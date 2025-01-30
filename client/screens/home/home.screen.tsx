@@ -14,7 +14,7 @@ export default function HomeScreen() {
       style={{ flex: 1, paddingTop: 50 }}
     >
       <Header />
-      <SearchInput homeScreen={true} />
+      {/* <SearchInput homeScreen={true} /> */}
       <ScrollView showsVerticalScrollIndicator={false}>
         <HomeTopTextBox />
         <DashboardGrid />

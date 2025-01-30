@@ -49,6 +49,7 @@ export default function VerifyAccountScreen() {
         router.push("/(routes)/login");
       })
       .catch((error) => {
+        console.log("oypk",error);
         Toast.show("Your OTP is not valid or expired!", {
           type: "danger",
         });
