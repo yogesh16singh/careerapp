@@ -175,7 +175,7 @@ export default function SearchInput({ homeScreen }: { homeScreen?: boolean }) {
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={true}>
           <View style={{ paddingHorizontal: 4 }}>
             <FlatList
-              data={counselors}
+              data={filteredCounselors}
               keyExtractor={(item: CounselorsType) => item._id}
               renderItem={({ item }: { item: CounselorsType }) => (
                 <View style={styles.card}>

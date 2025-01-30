@@ -45,6 +45,7 @@ export default function SignUpScreen() {
     email: "",
     password: "",
   });
+  const [role, setRole] = useState<"user" | "counselor">("user");
   const [required, setRequired] = useState("");
   const [error, setError] = useState({
     password: "",
@@ -103,6 +104,7 @@ export default function SignUpScreen() {
         name: userInfo.name,
         email: userInfo.email,
         password: userInfo.password,
+        role: role,
       })
       .then(async (res) => {
         await AsyncStorage.setItem(
@@ -146,6 +148,22 @@ export default function SignUpScreen() {
           Create an account to Academy to get all features
         </Text>
         <View style={styles.inputContainer}>
+           {/* ✅ Role Selection Buttons */}
+           <View style={styles.roleSelectionContainer}>
+            <TouchableOpacity
+              style={[styles.roleButton, role === "user" && styles.selectedRole]}
+              onPress={() => setRole("user")}
+            >
+              <Text style={role === "user" ? styles.selectedText : styles.unselectedText}>Sign up as User</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.roleButton, role === "counselor" && styles.selectedRole]}
+              onPress={() => setRole("counselor")}
+            >
+              <Text style={role === "counselor" ? styles.selectedText : styles.unselectedText}>Sign up as Counselor</Text>
+            </TouchableOpacity>
+          </View>
           <View>
             <TextInput
               style={[styles.input, { paddingLeft: 40, marginBottom: -12 }]}
@@ -222,7 +240,6 @@ export default function SignUpScreen() {
                 </Text>
               </View>
             )}
-
             <TouchableOpacity
               style={{
                 padding: 16,
@@ -344,5 +361,55 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 20,
     marginTop: 20,
+  },
+  roleSelectionContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 10,
+    marginTop: 15,
+  },
+  roleButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 13,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: "#2467EC",
+  },
+  selectedRole: {
+    backgroundColor: "#2467EC",
+  },
+  selectedText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  unselectedText: {
+    color: "#2467EC",
+  },
+  signUpButton: {
+    padding: 16,
+    borderRadius: 8,
+    backgroundColor: "#2467EC",
+    marginTop: 15,
+    alignItems: "center",
+  },
+  signUpText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  socialIcons: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 20,
+    marginTop: 20,
+  },
+  redirectText: {
+    fontSize: 18,
+  },
+  redirectLink: {
+    fontSize: 18,
+    color: "#2467EC",
+    marginLeft: 5,
+    fontWeight: "bold",
   },
 });
