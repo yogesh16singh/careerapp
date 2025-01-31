@@ -100,6 +100,14 @@ function RootLayoutNav() {
             headerBackTitle: "Back",
           }}
         />
+         <Stack.Screen
+          name="(routes)/counsellor-detail/index"
+          options={{
+            headerShown: true,
+            title: "Counsellor Profile",
+            headerBackTitle: "Back",
+          }}
+        />
       </Stack>
     </ToastProvider>
   );

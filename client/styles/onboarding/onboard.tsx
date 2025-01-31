@@ -26,7 +26,7 @@ export const styles = StyleSheet.create({
     top: -20,
   },
   titleText: {
-    fontSize: hp("4%"),
+    fontSize: hp("3.6%"),
     textAlign: "center",
   },
   titleTextShape2: {

@@ -30,7 +30,7 @@ export const getAllCounselors = CatchAsyncError(
         // Fetch counselors from the database
         const counselors = await userModel
           .find({ role: "counselor" })
-          .select("name email role expertise experience availability");
+          .select("name email role expertise experience availability avatar");
   
         // Cache the result in Redis
         await redis.set("allCounselors", JSON.stringify(counselors), "EX", 3600); // Cache for 1 hour

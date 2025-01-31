@@ -59,7 +59,6 @@ const dummycounselors = [
     availability: "Monday-Friday, 11 AM - 7 PM",
     image: require("@/assets/avatar.png"),
   },
- 
 ];
 type CounselorsType = {
   _id: string;
@@ -67,21 +66,26 @@ type CounselorsType = {
   expertise: string;
   experience: string;
   availability: string;
-  image: string;
+  avatar: {
+    public_id: string;
+    url: string;
+  };
 };
 export default function SearchInput({ homeScreen }: { homeScreen?: boolean }) {
   const [value, setValue] = useState("");
-  const [counselors, setCounselors] = useState(dummycounselors);
-  const [filteredCounselors, setFilteredCounselors] = useState<CounselorsType[]>([]);
+  const [counselors, setCounselors] = useState();
+  const [filteredCounselors, setFilteredCounselors] = useState<
+    CounselorsType[]
+  >([]);
 
   useEffect(() => {
     axios
       .get(`${SERVER_URI}/get-counselors`)
       .then((res: any) => {
         console.log("res", res.data.counselors);
-        // setCounselors(res.data.counselors);
+        setCounselors(res.data.counselors);
         if (!homeScreen) {
-          // setFilteredCounselors(res.data.counselors);
+          setFilteredCounselors(res.data.counselors);
         }
       })
       .catch((error) => {
@@ -172,7 +176,10 @@ export default function SearchInput({ homeScreen }: { homeScreen?: boolean }) {
             <Text>Experience ▼</Text>
           </TouchableOpacity>
         </View>
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={true}>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={true}
+        >
           <View style={{ paddingHorizontal: 4 }}>
             <FlatList
               data={filteredCounselors}
@@ -185,17 +192,34 @@ export default function SearchInput({ homeScreen }: { homeScreen?: boolean }) {
                       <Text style={styles.expertise}>{item.expertise}</Text>
                       <View style={styles.infoRow}>
                         <FontAwesome5 name="briefcase" size={16} color="#555" />
-                        <Text style={styles.infoText}>{item.experience}</Text>
+                        <Text style={styles.infoText}>
+                          {item.experience} Years
+                        </Text>
                       </View>
                       <View style={styles.infoRow}>
                         <FontAwesome5 name="clock" size={16} color="#555" />
                         <Text style={styles.infoText}>{item.availability}</Text>
                       </View>
                     </View>
-                    <Image source={item.image} style={styles.profileImage} />
+                    <Image
+                      source={
+                        item?.avatar?.url
+                          ? { uri: item.avatar.url }
+                          : require("@/assets/avatar.png")
+                      }
+                      style={styles.profileImage}
+                    />
                   </View>
-                  <TouchableOpacity style={styles.contactButton}>
-                    <Text style={styles.contactButtonText}>Contact Now</Text>
+                  <TouchableOpacity
+                    style={styles.contactButton}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/(routes)/counsellor-detail",
+                        params: { item: JSON.stringify(item) },
+                      })
+                    }
+                  >
+                    <Text style={styles.contactButtonText}> View Profile</Text>
                   </TouchableOpacity>
                 </View>
               )}

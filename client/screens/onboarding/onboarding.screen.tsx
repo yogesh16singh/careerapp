@@ -32,7 +32,7 @@ export default function OnBoardingScreen() {
             source={require("@/assets/onboarding/shape_3.png")}
           />
           <Text style={[styles.titleText, { fontFamily: "Raleway_700Bold" }]}>
-            Start Learning With
+          Unlock Your Potential with
           </Text>
           <Image
             style={styles.titleTextShape2}
@@ -45,15 +45,15 @@ export default function OnBoardingScreen() {
             source={require("@/assets/onboarding/shape_6.png")}
           />
           <Text style={[styles.titleText, { fontFamily: "Raleway_700Bold" }]}>
-            Academy
+          Expert Counseling.
           </Text>
         </View>
         <View style={styles.dscpWrapper}>
           <Text style={[styles.dscpText, { fontFamily: "Nunito_400Regular" }]}>
-            Explore a variety of interactive lesson,
+          Explore a variety of expert counseling services 
           </Text>
           <Text style={[styles.dscpText, { fontFamily: "Nunito_400Regular" }]}>
-            video, quizze & assignment.
+          to shape your future.
           </Text>
         </View>
         <TouchableOpacity

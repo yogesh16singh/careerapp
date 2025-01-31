@@ -33,7 +33,7 @@ export default function Header() {
         <TouchableOpacity onPress={() => router.push("/(tabs)/profile")}>
           <Image
             source={
-              user?.avatar ? user.avatar : require("@/assets/icons/User.png")
+              user?.avatar?.url ? { uri: user?.avatar?.url } : require("@/assets/icons/User.png")
             }
             style={styles.image}
           />
