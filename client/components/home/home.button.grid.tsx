@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 type IconName = 
   | 'account' 
@@ -20,7 +21,11 @@ const DashboardGrid = () => {
   return (
     <View style={styles.gridContainer}>
       {data.map((item) => (
-        <TouchableOpacity key={item.id} style={styles.card}>
+        <TouchableOpacity onPress={() => {
+          if (item.title === 'Book Counseling') {
+            router.push('/(tabs)/search');
+          }
+        }} key={item.id} style={styles.card}>
           <MaterialCommunityIcons name={item.icon} size={40} color={item.color} />
           <Text style={styles.cardTitle}>{item.title}</Text>
         </TouchableOpacity>

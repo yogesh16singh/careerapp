@@ -69,6 +69,14 @@ function RootLayoutNav() {
           }}
         />
         <Stack.Screen
+          name="(routes)/notification/index"
+          options={{
+            headerShown: true,
+            title: "Notifications",
+            headerBackTitle: "Back",
+          }}
+        />
+        <Stack.Screen
           name="(routes)/profile-details/index"
           options={{
             headerShown: true,

@@ -26,6 +26,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { SERVER_URI } from "@/utils/uri";
 import { router } from "expo-router";
+import React from "react";
 
 export default function ProfileScreen() {
   const { user, loading, setRefetch } = useUser();
@@ -273,7 +274,7 @@ export default function ProfileScreen() {
                   justifyContent: "space-between",
                   marginBottom: 20,
                 }}
-                onPress={() => router.push("/(routes)/enrolled-courses")}
+                // onPress={() => router.push("/(routes)/enrolled-courses")}
               >
                 <View
                   style={{
@@ -303,7 +304,7 @@ export default function ProfileScreen() {
                     <Text
                       style={{ fontSize: 16, fontFamily: "Nunito_700Bold" }}
                     >
-                      Enrolled courses
+                    Booked Sessions 
                     </Text>
                     <Text
                       style={{
@@ -311,7 +312,7 @@ export default function ProfileScreen() {
                         fontFamily: "Nunito_400Regular",
                       }}
                     >
-                      The all enrolled courses
+                      all sessions you have booked
                     </Text>
                   </View>
                 </View>

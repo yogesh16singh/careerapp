@@ -2,21 +2,21 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Raleway_700Bold } from "@expo-google-fonts/raleway";
 import { useFonts } from "expo-font";
 import useUser from "@/hooks/auth/useUser";
-import { Feather } from "@expo/vector-icons";
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Header() {
   const [cartItems, setCartItems] = useState([]);
-
-  useEffect(() => {
-    const subscription = async () => {
-      const cart: any = await AsyncStorage.getItem("cart");
-      setCartItems(JSON.parse(cart));
-    };
-    subscription();
-  }, []);
+  const [notifications, setNotifications] = useState([]);
+  // useEffect(() => {
+  //   const subscription = async () => {
+  //     const cart: any = await AsyncStorage.getItem("cart");
+  //     setCartItems(JSON.parse(cart));
+  //   };
+  //   subscription();
+  // }, []);
 
   const { user } = useUser();
 
@@ -49,13 +49,13 @@ export default function Header() {
       </View>
       <TouchableOpacity
         style={styles.bellButton}
-        onPress={() => router.push("/(routes)/cart")}
+        onPress={() => router.push("/(routes)/notification")}
       >
         <View>
-          <Feather name="shopping-bag" size={26} color={"black"} />
+        <Ionicons name="notifications" size={28} color="black" />
           <View style={styles.bellContainer}>
             <Text style={{ color: "#fff", fontSize: 14 }}>
-              {cartItems?.length}
+              {notifications?.length}
             </Text>
           </View>
         </View>
