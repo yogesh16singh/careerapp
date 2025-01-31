@@ -395,6 +395,7 @@ export const updateProfilePicture = CatchAsyncError(
                 user
             })
         } catch (error: any) {
+            console.log("error", error)
             return next(new ErrorHandler(error.message, 400))
         }
     }
