@@ -8,6 +8,7 @@ import {
 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
+import * as Progress from "react-native-progress";
 import {
   useFonts,
   Raleway_600SemiBold,
@@ -142,6 +143,67 @@ export default function ProfileScreen() {
             >
               {user?.name}
             </Text>
+            {(user?.role === "counselor" && user?.expertise === null) && (
+              <View style={{ marginHorizontal: 16, marginTop: 30 }}>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    marginBottom: 16,
+                    fontFamily: "Raleway_700Bold",
+                  }}
+                >
+                  Profile Completion
+                </Text>
+
+                {/* Progress Bar */}
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 10,
+                  }}
+                >
+                  <View style={{ width: "85%", paddingHorizontal: 0 }}>
+                    <Progress.Bar
+                      progress={0.5}
+                      width={null} // Let parent container decide width
+                      height={20}
+                      color="#2467EC"
+                      borderRadius={8}
+                      unfilledColor="#E5ECF9"
+                      borderWidth={1}
+                    />
+                  </View>
+
+                  <Text style={{ fontSize: 16, fontFamily: "Nunito_700Bold" }}>
+                    50%
+                  </Text>
+                </View>
+
+                {/* Complete Profile Button */}
+                <TouchableOpacity
+                  style={{
+                    padding: 12,
+                    borderRadius: 8,
+                    backgroundColor: "#2467EC",
+                    marginTop: 15,
+                    alignItems: "center",
+                  }}
+                  onPress={() => router.push("/(routes)/complete-profile")}
+                >
+                  <Text
+                    style={{
+                      color: "white",
+                      fontSize: 16,
+                      fontFamily: "Raleway_700Bold",
+                    }}
+                  >
+                    Complete Profile
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
             <View style={{ marginHorizontal: 16, marginTop: 30 }}>
               <Text
                 style={{

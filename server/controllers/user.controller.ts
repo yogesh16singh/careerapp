@@ -270,40 +270,39 @@ export const socialAuth = CatchAsyncError( // Ekspor fungsi socialAuth dengan pe
 interface IUpdateUserInfo {
     name?: string;
     email?: string;
+    expertise?: string;
+    experience?: number;
+    availability?: string;
 }
 
 export const updateUserInfo = CatchAsyncError(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { name } = req.body as IUpdateUserInfo
-            const userId = req.user?._id
-            const user = await userModel.findById(userId)
+            const { expertise, experience, availability } = req.body as IUpdateUserInfo;
+            const userId = req.user?._id;
+            const user = await userModel.findById(userId);
 
-            // if (email && user) {
-            //     const isEmailExist = await userModel.findOne({ email })
-            //     if (isEmailExist) {
-            //         return next(new ErrorHandler("Email already exist", 400))
-            //     }
-            //     user.email = email
-            // }
-
-            if (name && user) {
-                user.name = name
+            if (!user) {
+                return next(new ErrorHandler("User not found", 404));
             }
+            if (expertise) user.expertise = expertise;
+            if (experience) user.experience = experience;
+            if (availability) user.availability = availability;
 
-            await user?.save()
+            await user.save();
 
-            await redis.set(userId, JSON.stringify(user))
+            await redis.set(userId, JSON.stringify(user));
 
-            res.status(201).json({
+            res.status(200).json({
                 success: true,
                 user
-            })
+            });
         } catch (error: any) {
-            return next(new ErrorHandler(error.message, 400))
+            return next(new ErrorHandler(error.message, 400));
         }
     }
-)
+);
+
 
 /**
  * update user passowrd

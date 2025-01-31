@@ -20,6 +20,10 @@ type User = {
   password?: string;
   courses: any;
   createdAt: Date;
+  expertise?: string;
+  experience?: number;
+  availability?: string;
+  role: "user" | "admin" | "counselor";
   updatedAt: Date;
 };
 

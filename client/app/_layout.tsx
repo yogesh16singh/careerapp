@@ -92,6 +92,14 @@ function RootLayoutNav() {
             headerBackTitle: "Back",
           }}
         />
+         <Stack.Screen
+          name="(routes)/complete-profile/index"
+          options={{
+            headerShown: true,
+            title: "Complete Profile",
+            headerBackTitle: "Back",
+          }}
+        />
       </Stack>
     </ToastProvider>
   );
