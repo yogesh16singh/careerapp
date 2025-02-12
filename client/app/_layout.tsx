@@ -100,7 +100,7 @@ function RootLayoutNav() {
             headerBackTitle: "Back",
           }}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="(routes)/complete-profile/index"
           options={{
             headerShown: true,
@@ -108,11 +108,19 @@ function RootLayoutNav() {
             headerBackTitle: "Back",
           }}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="(routes)/counsellor-detail/index"
           options={{
             headerShown: true,
             title: "Counsellor Profile",
+            headerBackTitle: "Back",
+          }}
+        />
+        <Stack.Screen
+          name="(routes)/ai-form/index"
+          options={{
+            headerShown: true,
+            title: "Chat with AI",
             headerBackTitle: "Back",
           }}
         />

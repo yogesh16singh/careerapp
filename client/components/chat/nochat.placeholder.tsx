@@ -5,12 +5,11 @@ import { Nunito_400Regular, Nunito_700Bold } from "@expo-google-fonts/nunito";
 import {
     heightPercentageToDP as hp,
   } from "react-native-responsive-screen";
+import { router } from "expo-router";
 const NoChatPlaceholder = ({
   selected,
-  onFillForm,
 }: {
   selected: "ai" | "regular";
-  onFillForm: () => void;
 }) => {
     let [fontsLoaded, fontError] = useFonts({
         Raleway_700Bold,
@@ -26,7 +25,9 @@ const NoChatPlaceholder = ({
       <Image source={require("@/assets/no-chat.png")} style={styles.image} />
       <Text style={styles.noChatText}>No Chats</Text>
       {selected === "ai" && (
-        <TouchableOpacity style={styles.button} onPress={onFillForm}>
+        <TouchableOpacity style={styles.button} onPress={() => {
+            router.push("/(routes)/ai-form");
+        }}>
           <Text style={styles.buttonText}>
             Click to fill the form to start chat with AI
           </Text>

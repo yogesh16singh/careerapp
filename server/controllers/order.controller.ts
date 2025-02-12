@@ -11,6 +11,8 @@ import ejs from "ejs";
 import NotificationModel from "../models/notification.model";
 import { getAllCoursesService } from "../services/course.service";
 import { redis } from "../utils/redis";
+import Razorpay from "razorpay"
+import crypto from "crypto"
 require("dotenv").config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
@@ -135,6 +137,12 @@ export const sendStripePublshableKey = CatchAsyncError(
 export const newPayment = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const customer = await stripe.customers.create(); // Create a new customer
+
+    const ephemeralKey = await stripe.ephemeralKeys.create(
+      { customer: customer.id },
+      { apiVersion: "2023-10-16" } // Use the latest API version
+    );
       const myPayment = await stripe.paymentIntents.create({
         amount: req.body.amount,
         currency: "USD",
@@ -143,13 +151,59 @@ export const newPayment = CatchAsyncError(
         },
         automatic_payment_methods: {
           enabled: true,
-        },
+        }
       });
-
+       console.log("myPayment", myPayment);
       res.status(200).json({
         success: true,
         client_secret: myPayment.client_secret,
+        ephemeralKey: ephemeralKey.secret,
+      customer: customer.id,
       });
-    } catch (error: any) {}
+    } catch (error: any) {
+      console.error("error", error);
+    }
   }
 );
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || '',
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+export const createOrderRP = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { amount, currency } = req.body;
+      const options = {
+        amount: amount * 100, // Amount in paisa (e.g., 50000 = ₹500)
+        currency: currency || "INR",
+        receipt: `receipt_${Math.random() * 1000}`,
+      };
+  
+      const order = await razorpay.orders.create(options);
+      res.json(order);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    } 
+  }
+)
+
+export const verifyPayment = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { order_id, payment_id, signature } = req.body;
+      const generated_signature = crypto
+        .createHmac("sha256", "your_key_secret")
+        .update(`${order_id}|${payment_id}`)
+        .digest("hex");
+    
+      if (generated_signature === signature) {
+        res.json({ success: true, message: "Payment Verified Successfully" });
+      } else {
+        res.status(400).json({ success: false, message: "Payment Verification Failed" });
+      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+)

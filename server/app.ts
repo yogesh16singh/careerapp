@@ -12,6 +12,7 @@ import analyticsRouter from "./routes/analytics.route";
 import layoutRouter from "./routes/layout.route";
 import { rateLimit } from "express-rate-limit";
 import counselorRouter from "./routes/counselor.route";
+import aiRouter from "./routes/ai.route";
 
 app.use(cors());
 
@@ -39,6 +40,7 @@ app.use(
   counselorRouter,
   orderRouter,
   notificationRoute,
+  aiRouter,
   analyticsRouter,
   layoutRouter
 );

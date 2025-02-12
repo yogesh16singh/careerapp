@@ -93,7 +93,7 @@ export default function ChatScreen() {
           <View style={{ paddingTop: 10,alignItems:'center' }}>
             <ChatToggleButtons selected={selected} setSelected={setSelected} />
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <NoChatPlaceholder selected={selected} onFillForm={() => {}} />
+              <NoChatPlaceholder selected={selected} />
             </ScrollView>
           </View>
         </LinearGradient>
