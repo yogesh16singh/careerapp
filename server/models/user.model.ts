@@ -19,6 +19,8 @@ export interface IUser extends Document {
   expertise?: string;
   experience?: number; // years of experience
   availability?: string; // e.g., "Monday-Friday, 9 AM - 5 PM"
+  purchasedCounselors?: string[];
+  students?: string[];
   comparePassword: (password: string) => Promise<boolean>;
   SignAccessToken: () => string;
   SignRefreshToken: () => string;
@@ -77,6 +79,8 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
       type: String, // Example: "Monday-Friday, 9 AM - 5 PM"
       default: null,
     },
+    purchasedCounselors: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // For users
+    students: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // For counselors
   },
   { timestamps: true }
 );

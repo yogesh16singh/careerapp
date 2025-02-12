@@ -26,6 +26,9 @@ import RazorpayCheckout from "react-native-razorpay";
 
 export default function CounselorDetailScreen() {
   const { item } = useLocalSearchParams();
+    const { user, loading, setRefetch } = useUser();
+    console.log("user", user);
+   
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const counselor: any = JSON.parse(item as string);
   const Skills = ["Communication", "Time Management"];
@@ -86,6 +89,17 @@ export default function CounselorDetailScreen() {
         console.error(paymentResponse.error);
       } else {
         console.log("pares", paymentResponse);
+         // Store Payment Data in Backend
+      await axios.post(
+        `${SERVER_URI}/update-payment-status`,
+        { userId: user?._id, counselorId: counselor._id },
+        {
+          headers: {
+            "access-token": accessToken,
+            "refresh-token": refreshToken,
+          },
+        }
+      );
         // await createOrder(paymentResponse);
       }
     } catch (error) {
@@ -176,11 +190,11 @@ export default function CounselorDetailScreen() {
   // };
 
   return (
-    <>
+    <> 
       <LinearGradient colors={["#E5ECF9", "#F6F7F9"]} style={{ flex: 1 }}>
         <ScrollView>
           <View style={{ alignItems: "center", padding: 20 }}>
-            {/* Profile Image */}
+           
             <Image
               source={{ uri: counselor?.avatar?.url || "@/assets/avatar.png" }}
               style={{
@@ -269,7 +283,35 @@ export default function CounselorDetailScreen() {
           </View>
 
           {/* Connect Section */}
-          <View
+          {user?.purchasedCounselors.includes(counselor._id) ? (
+              <View
+              style={{
+                backgroundColor: "#E3F2FD",
+                padding: 20,
+                alignItems: "center",
+                marginTop: 34,
+              }}
+            >
+              <View style={{ width: "100%", alignContent: "center" }}>
+                {/* <TouchableOpacity style={{ backgroundColor: "#007BFF", padding: 10, borderRadius: 5 }}>
+                <Text style={{ color: "white" }}>₹{counselor?.callRate}/min</Text>
+              </TouchableOpacity> */}
+                <TouchableOpacity
+                  onPress={() => handlePayment()}
+                  style={{
+                    backgroundColor: "#007BFF",
+                    padding: 10,
+                    margin: 20,
+                    borderRadius: 5,
+                  }}
+                >
+                  <Text style={{ color: "white", textAlign: "center" }}>
+                   Chat with {counselor?.name}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+            ):(<View
             style={{
               backgroundColor: "#E3F2FD",
               padding: 20,
@@ -298,7 +340,8 @@ export default function CounselorDetailScreen() {
             <Text style={{ fontStyle: "italic", marginBottom: 10 }}>
               Connect with {counselor?.name}
             </Text>
-          </View>
+          </View>)}
+          
         </ScrollView>
       </LinearGradient>
     </>

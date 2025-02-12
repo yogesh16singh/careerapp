@@ -13,6 +13,14 @@ export const getUserById = async (id: string, res: Response) => {
             user,
         })
     }
+    else {
+        const user = await userModel.findById(id)
+        await redis.set(id, JSON.stringify(user))
+        res.status(201).json({
+            success: true,
+            user,
+        })
+    }
 }
 
 // Get all users

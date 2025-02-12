@@ -25,6 +25,8 @@ type User = {
   availability?: string;
   role: "user" | "admin" | "counselor";
   updatedAt: Date;
+  purchasedCounselors: string[];
+  students: string[];
 };
 
 type BannerDataTypes = {
