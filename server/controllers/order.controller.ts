@@ -212,7 +212,6 @@ export const updateUserPaymentStatus = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { userId, counselorId } = req.body;
-      
       // Add counselorId to user's purchasedCounselors array
       await userModel.findByIdAndUpdate(userId, {
         $addToSet: { purchasedCounselors: counselorId },
@@ -222,6 +221,28 @@ export const updateUserPaymentStatus = CatchAsyncError(
       await userModel.findByIdAndUpdate(counselorId, {
         $addToSet: { students: userId },
       });
+
+      const counselor = await userModel.findById(counselorId);
+      if (counselor && counselor.pushToken) {
+        const message = {
+          to: counselor.pushToken,
+          sound: "default",
+          title: "New Booking!",
+          body: "A student has booked a session with you. Check your dashboard.",
+          data: { counselorId },
+        };
+
+        const response = await fetch("https://exp.host/--/api/v2/push/send", {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Accept-Encoding": "gzip, deflate",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(message),
+        });
+      }
+
       await redis.del(userId)
       res.json({ message: "Payment data updated successfully!" });
     } catch (error: any) {

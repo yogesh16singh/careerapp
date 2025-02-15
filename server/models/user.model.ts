@@ -21,6 +21,7 @@ export interface IUser extends Document {
   availability?: string; // e.g., "Monday-Friday, 9 AM - 5 PM"
   purchasedCounselors?: string[];
   students?: string[];
+  pushToken: String,
   comparePassword: (password: string) => Promise<boolean>;
   SignAccessToken: () => string;
   SignRefreshToken: () => string;
@@ -60,6 +61,10 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     isVerified: {
       type: Boolean,
       default: false,
+    },
+    pushToken: {
+      type: String,
+      default: null,
     },
     courses: [
       {

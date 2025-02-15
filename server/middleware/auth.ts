@@ -4,18 +4,17 @@ import ErrorHandler from "../utils/ErrorHandler"
 import jwt, { JwtPayload } from "jsonwebtoken"
 import { redis } from "../utils/redis"
 import { updateAccessToken } from "../controllers/user.controller"
+import userModel from "../models/user.model"
 
 // authenticated user
 export const isAuthenticated = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
     const access_token = req.cookies.access_token as string;
-
     // console.log(access_token)
     if (!access_token) {
         return next(new ErrorHandler("Please login to access this resource", 400));
     }
 
     const decoded = jwt.decode(access_token) as JwtPayload
-
     if (!decoded) {
         return next(new ErrorHandler("Access token is not valid", 400));
     }
@@ -23,16 +22,19 @@ export const isAuthenticated = CatchAsyncError(async (req: Request, res: Respons
     // check if the access token is expired
     if (decoded.exp && decoded.exp <= Date.now() / 1000) {
         try {
-            await updateAccessToken(req, res, next)
+             updateAccessToken(req, res, next)
         } catch (error: any) {
-            new ErrorHandler("Please login to acces this resource", 400)
+            new ErrorHandler("Please login to access this resource", 400)
         }
     } else {
 
-        const user = await redis.get(decoded.id)
-
+        let user = await redis.get(decoded.id)
         if (!user) {
+           let parseduser = await userModel.findById(decoded.id)
+           user= JSON.stringify(parseduser);
+            if(!user){
             return next(new ErrorHandler("Please login to access this resource", 400));
+        }
         }
 
         req.user = JSON.parse(user)

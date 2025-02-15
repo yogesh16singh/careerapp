@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1079321442704",
+    "project_id": "expopushnotifications-88671",
+    "storage_bucket": "expopushnotifications-88671.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1079321442704:android:45fb401cecce0747dc5b15",
+        "android_client_info": {
+          "package_name": "com.academy.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMUUMt8NsJHpDYT7etTHS5m032DoDqlfk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -187,20 +187,24 @@ export const updateAccessToken = CatchAsyncError(async (req: Request, res: Respo
         const refresh_token = req.cookies.refresh_token as string;
         const decoded = jwt.verify(refresh_token,
             process.env.REFRESH_TOKEN as string) as JwtPayload
-
         const message = 'Could not refresh token'
         if (!decoded) {
             return next(new ErrorHandler(message, 400))
         }
-
-        const session = await redis.get(decoded.id as string)
+ 
+        let session = await redis.get(decoded.id as string)
 
         if (!session) {
-            return next(new ErrorHandler("Please login for access this resources", 400))
+            console.log("Fetching from DB...");
+            const user = await userModel.findById(decoded.id);
+            if (!user) {
+                return next(new ErrorHandler("Please login to access this resource", 400));
+            }
+            session = JSON.stringify(user);
+            await redis.set(decoded.id, session, "EX", 604800); // Store in Redis for 7 days
         }
-
+         
         const user = JSON.parse(session)
-
         const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN as string, {
             expiresIn: "5m"
         })

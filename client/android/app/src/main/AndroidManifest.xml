@@ -26,8 +26,6 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="betafier"/>
-        <data android:scheme="com.betafier.app"/>
-        <data android:scheme="exp+betafier"/>
         <data android:scheme="com.academy.app"/>
         <data android:scheme="exp+academy"/>
       </intent-filter>

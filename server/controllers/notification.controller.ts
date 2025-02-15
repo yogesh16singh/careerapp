@@ -3,6 +3,7 @@ import { CatchAsyncError } from "../middleware/catchAsyncErrors";
 import ErrorHandler from "../utils/ErrorHandler";
 import NotificationModel from "../models/notification.model";
 import cron from "node-cron";
+import userModel from "../models/user.model";
 
 // get all notification by admin
 export const getNotifications = CatchAsyncError(
@@ -19,6 +20,14 @@ export const getNotifications = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
+  }
+);
+
+export const storePushToken = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { token, userId } = req.body;
+    await userModel.findByIdAndUpdate(req.user?._id, { pushToken: token });
+    res.json({ success: true, message: "Token stored" });
   }
 );
 

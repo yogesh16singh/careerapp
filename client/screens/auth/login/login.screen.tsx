@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import {
   Entypo,
@@ -27,13 +28,25 @@ import {
   Nunito_700Bold,
   Nunito_600SemiBold,
 } from "@expo-google-fonts/nunito";
-import { useState } from "react";
 import { commonStyles } from "@/styles/common/common.styles";
 import { router } from "expo-router";
 import axios from "axios";
 import { SERVER_URI } from "@/utils/uri";
 import { Toast } from "react-native-toast-notifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from "expo-notifications";
+import { useState } from "react";
+import { Platform } from "react-native";
+import * as Device from "expo-device";
+import Constants from 'expo-constants';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
 export default function LoginScreen() {
   const [isPasswordVisible, setPasswordVisible] = useState(false);
@@ -59,7 +72,7 @@ export default function LoginScreen() {
   if (!fontsLoaded && !fontError) {
     return null;
   }
-
+ 
   const handlePasswordValidation = (value: string) => {
     const password = value;
     const passwordSpecialCharacter = /(?=.*[!@#$&*])/;
@@ -103,15 +116,109 @@ export default function LoginScreen() {
       .then(async (res) => {
         console.log("res", res);
         await AsyncStorage.setItem("access_token", res.data.accessToken);
+        registerForPushNotifications();
+        Notifications.addNotificationReceivedListener(notification => {
+          console.log("Notification Received:", notification);
+        });
+        Notifications.addNotificationResponseReceivedListener(response => {
+          console.log("notification Response:",response);});
         // await AsyncStorage.setItem("refresh_token", res.data.refreshToken);
         router.push("/(tabs)");
       })
       .catch((error) => {
         console.log(error);
-        Toast.show(error?.response?.data?.message ||"Something went wrong!", {
+        Toast.show(error?.response?.data?.message || "Something went wrong!", {
           type: "danger",
         });
       });
+  };
+
+  const registerForPushNotifications = async () => {
+    let token;
+    if (Device.isDevice) {
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+
+      if (existingStatus !== "granted") {
+        // Show an alert explaining why the app needs notifications
+        const askPermission = await new Promise((resolve) => {
+          Alert.alert(
+            "Allow Notifications",
+            "We need notification permissions to send updates about your counseling sessions.",
+            [
+              {
+                text: "Cancel",
+                onPress: () => resolve(false),
+                style: "cancel",
+              },
+              { text: "Allow", onPress: () => resolve(true) },
+            ]
+          );
+        });
+
+        if (askPermission) {
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+        }
+      }
+
+      if (finalStatus !== "granted") {
+        Alert.alert("Permission Denied", " You won't receive notifications.");
+        return;
+      }
+
+      try {
+        const projectId =
+          Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+        if (!projectId) {
+          throw new Error('Project ID not found');
+        }
+        token = (
+          await Notifications.getExpoPushTokenAsync({
+            projectId,
+          })
+        ).data;
+        console.log(token);
+      } catch (e) {
+        console.error(e);
+        token = `${e}`;
+      }
+      console.log("Push Token:", token);
+
+      // Send this token to your backend
+      await fetch(`${SERVER_URI}/store-push-token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+
+      const accessToken = await AsyncStorage.getItem("access_token");
+      const refreshToken = await AsyncStorage.getItem("refresh_token");
+
+      await axios.post(
+        `${SERVER_URI}/store-push-token`,
+        { token },
+        {
+          headers: {
+            "access-token": accessToken,
+            "refresh-token": refreshToken,
+          },
+        }
+      );
+
+    } else {
+      alert("Must use a physical device for Push Notifications");
+    }
+
+    if (Platform.OS === "android") {
+      Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: "#FF231F7C",
+      });
+    }
   };
 
   return (

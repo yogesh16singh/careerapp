@@ -26,9 +26,8 @@ import RazorpayCheckout from "react-native-razorpay";
 
 export default function CounselorDetailScreen() {
   const { item } = useLocalSearchParams();
-    const { user, loading, setRefetch } = useUser();
-    console.log("user", user);
-   
+  const { user } = useUser();
+
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const counselor: any = JSON.parse(item as string);
   const Skills = ["Communication", "Time Management"];
@@ -61,8 +60,6 @@ export default function CounselorDetailScreen() {
           },
         }
       );
-      console.log("23");
-      // console.log("paymentIntentResponse", paymentIntentResponse);
       const {
         client_secret: clientSecret,
         ephemeralKey,
@@ -71,36 +68,29 @@ export default function CounselorDetailScreen() {
 
       const initSheetResponse = await initPaymentSheet({
         merchantDisplayName: "Academy Private Ltd.",
-        // paymentIntentClientSecret: 'pi_3QrHikFTiYqfwYEh0Zrwk4aG_secret_xt5Jgncnpvo7YSOgn2WIYMN7t',
         paymentIntentClientSecret: clientSecret,
-          customerId: customer,
+        customerId: customer,
         customerEphemeralKeySecret: ephemeralKey,
         allowsDelayedPaymentMethods: false,
       });
-      console.log("initSheetResponse", initSheetResponse);
       if (initSheetResponse.error) {
         console.error(initSheetResponse.error);
         return;
       }
-      console.log("23999");
       const paymentResponse = await presentPaymentSheet();
-      console.log("paymentResponse", paymentResponse);
       if (paymentResponse.error) {
         console.error(paymentResponse.error);
       } else {
-        console.log("pares", paymentResponse);
-         // Store Payment Data in Backend
-      await axios.post(
-        `${SERVER_URI}/update-payment-status`,
-        { userId: user?._id, counselorId: counselor._id },
-        {
-          headers: {
-            "access-token": accessToken,
-            "refresh-token": refreshToken,
-          },
-        }
-      );
-        // await createOrder(paymentResponse);
+        await axios.post(
+          `${SERVER_URI}/update-payment-status`,
+          { userId: user?._id, counselorId: counselor._id },
+          {
+            headers: {
+              "access-token": accessToken,
+              "refresh-token": refreshToken,
+            },
+          }
+        );
       }
     } catch (error) {
       console.error(error);
@@ -190,11 +180,10 @@ export default function CounselorDetailScreen() {
   // };
 
   return (
-    <> 
+    <>
       <LinearGradient colors={["#E5ECF9", "#F6F7F9"]} style={{ flex: 1 }}>
         <ScrollView>
           <View style={{ alignItems: "center", padding: 20 }}>
-           
             <Image
               source={{ uri: counselor?.avatar?.url || "@/assets/avatar.png" }}
               style={{
@@ -284,7 +273,32 @@ export default function CounselorDetailScreen() {
 
           {/* Connect Section */}
           {user?.purchasedCounselors.includes(counselor._id) ? (
-              <View
+            <View
+              style={{
+                backgroundColor: "#E3F2FD",
+                padding: 20,
+                alignItems: "center",
+                marginTop: 34,
+              }}
+            >
+              <View style={{ width: "100%", alignContent: "center" }}>
+                <TouchableOpacity
+                  onPress={() => {}}
+                  style={{
+                    backgroundColor: "#007BFF",
+                    padding: 10,
+                    margin: 20,
+                    borderRadius: 5,
+                  }}
+                >
+                  <Text style={{ color: "white", textAlign: "center" }}>
+                    Chat with {counselor?.name}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : (
+            <View
               style={{
                 backgroundColor: "#E3F2FD",
                 padding: 20,
@@ -294,8 +308,8 @@ export default function CounselorDetailScreen() {
             >
               <View style={{ width: "100%", alignContent: "center" }}>
                 {/* <TouchableOpacity style={{ backgroundColor: "#007BFF", padding: 10, borderRadius: 5 }}>
-                <Text style={{ color: "white" }}>₹{counselor?.callRate}/min</Text>
-              </TouchableOpacity> */}
+              <Text style={{ color: "white" }}>₹{counselor?.callRate}/min</Text>
+            </TouchableOpacity> */}
                 <TouchableOpacity
                   onPress={() => handlePayment()}
                   style={{
@@ -306,42 +320,15 @@ export default function CounselorDetailScreen() {
                   }}
                 >
                   <Text style={{ color: "white", textAlign: "center" }}>
-                   Chat with {counselor?.name}
+                    ₹100 for complete guidance
                   </Text>
                 </TouchableOpacity>
               </View>
+              <Text style={{ fontStyle: "italic", marginBottom: 10 }}>
+                Connect with {counselor?.name}
+              </Text>
             </View>
-            ):(<View
-            style={{
-              backgroundColor: "#E3F2FD",
-              padding: 20,
-              alignItems: "center",
-              marginTop: 34,
-            }}
-          >
-            <View style={{ width: "100%", alignContent: "center" }}>
-              {/* <TouchableOpacity style={{ backgroundColor: "#007BFF", padding: 10, borderRadius: 5 }}>
-              <Text style={{ color: "white" }}>₹{counselor?.callRate}/min</Text>
-            </TouchableOpacity> */}
-              <TouchableOpacity
-                onPress={() => handlePayment()}
-                style={{
-                  backgroundColor: "#007BFF",
-                  padding: 10,
-                  margin: 20,
-                  borderRadius: 5,
-                }}
-              >
-                <Text style={{ color: "white", textAlign: "center" }}>
-                  ₹100 for complete guidance
-                </Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={{ fontStyle: "italic", marginBottom: 10 }}>
-              Connect with {counselor?.name}
-            </Text>
-          </View>)}
-          
+          )}
         </ScrollView>
       </LinearGradient>
     </>
