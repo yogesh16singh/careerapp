@@ -5,7 +5,7 @@ import { updateAccessToken } from "../controllers/user.controller"
 
 const notificationRoute = express.Router()
 
-notificationRoute.get("/get-all-notifications", isAuthenticated, authorizeRoles("admin"), getNotifications)
+notificationRoute.get("/get-notifications", isAuthenticated, getNotifications)
 notificationRoute.put("/update-notification/:id", updateAccessToken, isAuthenticated, authorizeRoles("admin"), updateNotification)
 notificationRoute.post("/store-push-token", isAuthenticated, storePushToken)
 
