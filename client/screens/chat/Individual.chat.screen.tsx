@@ -5,13 +5,15 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
+  Image,
   StyleSheet,
 } from "react-native";
 import axios from "axios";
 import { SERVER_URI } from "@/utils/uri";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import useChatSocket from "@/hooks/socket/useSocket";
 import { useNavigation } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CONNECTED_EVENT = "connected";
 const DISCONNECT_EVENT = "disconnect";
@@ -25,23 +27,28 @@ const UPDATE_GROUP_NAME_EVENT = "updateGroupName";
 const MESSAGE_DELETE_EVENT = "messageDeleted";
 // const SOCKET_ERROR_EVENT = "socketError";
 
-const IndividualChat = ({ userId, currentChat: Chat ,navigation}: any) => {
-
+const IndividualChat = ({ userId, currentChat: Chat }: any) => {
   const currentChat = JSON.parse(Chat);
-  const receiverdata = currentChat.participants.filter((item: any) => item._id !== userId);
-  const receiverName = receiverdata[0]?.name || "Chat"; 
+  const receiverData = currentChat.participants.find(
+    (item: any) => item._id !== userId
+  );
+  const receiverName = receiverData?.name || "Chat";
+  const receiverImage = receiverData?.avatar.url || "https://via.placeholder.com/50";
 
-  // Access navigation manually if not passed as a prop
-  const nav = useNavigation();
+  const navigation = useNavigation();
 
   useLayoutEffect(() => {
-    nav.setOptions({
-      title: receiverName,
+    navigation.setOptions({
+      headerTitle: () => (
+        <View style={styles.headerContainer}>
+          <Image source={{ uri: receiverImage }} style={styles.profileImage} />
+          <Text style={styles.headerText}>{receiverName}</Text>
+        </View>
+      ),
     });
-  }, [nav, receiverName]);
+  }, [navigation, receiverName, receiverImage]);
 
-
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<any>([]);
   // State to store the socket instance
   const { socket } = useChatSocket();
   const [isConnected, setIsConnected] = useState(false); // For tracking socket connection
@@ -99,7 +106,7 @@ const IndividualChat = ({ userId, currentChat: Chat ,navigation}: any) => {
       // If message is successfully sent, update UI
       setMessage("");
       setAttachedFiles([]);
-      setMessages((prev) => [response?.data?.data, ...prev]);
+      setMessages((prev: any) => [response?.data?.data, ...prev]);
       // updateChatLastMessage(currentChat?._id || "", response.data);
 
       // Emit message to the server via socket
@@ -116,15 +123,15 @@ const IndividualChat = ({ userId, currentChat: Chat ,navigation}: any) => {
       // setUnreadMessages((prev) => [message, ...prev]);
     } else {
       // If it belongs to the current chat, update the messages list for the active chat
-      setMessages((prev) => [message, ...prev]);
+      setMessages((prev: any) => [message, ...prev]);
     }
 
     // Update the last message for the chat to which the received message belongs
     // updateChatLastMessage(message.chat || "", message);
   };
-  const onChatLeave = (chat) => {
+  const onChatLeave = (chat: any) => {
     // Update the chats by removing the chat that the user left.
-    setChats((prev) => prev.filter((c) => c._id !== chat._id));
+    // setChats((prev) => prev.filter((c) => c._id !== chat._id));
   };
 
   const onConnect = (e: any) => {
@@ -187,10 +194,12 @@ const IndividualChat = ({ userId, currentChat: Chat ,navigation}: any) => {
   useEffect(() => {
     getMessages();
   }, []);
+
   return (
     <View style={styles.container}>
       <FlatList
         inverted
+        style={styles.messageList}
         data={messages}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }: { item: any }) => (
@@ -212,7 +221,7 @@ const IndividualChat = ({ userId, currentChat: Chat ,navigation}: any) => {
           onChangeText={setMessage}
         />
         <TouchableOpacity style={styles.sendButton} onPress={sendChatMessage}>
-          <Text style={styles.sendButtonText}>Send</Text>
+          <Ionicons name="send" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
     </View>
@@ -220,28 +229,36 @@ const IndividualChat = ({ userId, currentChat: Chat ,navigation}: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 10,marginTop:0 },
-  messageContainer: { padding: 10, marginVertical: 5, borderRadius: 10 ,marginBottom:14 },
-  sent: { alignSelf: "flex-end", backgroundColor: "#2467EC" },
-  received: { alignSelf: "flex-start", backgroundColor: "#35404A" },
-  messageText: { color: "#fff" },
+  container: { flex: 1, backgroundColor: "#f0f0f0" },
+  headerContainer: { flexDirection: "row", alignItems: "center", right: 22 },
+  profileImage: { width: 40, height: 40, borderRadius: 20, marginRight: 12 },
+  headerText: { fontSize: 18, fontWeight: "bold" },
+  messageList: { flex: 1, padding: 4,marginTop: 8 },
+  messageContainer: { paddingVertical: 10,paddingHorizontal: 24, marginVertical: 6, borderRadius: 10,maxWidth: "80%" },
+  sent: { alignSelf: "flex-end", backgroundColor: "#2467EC", borderBottomRightRadius: 0 },
+  received: { alignSelf: "flex-start", backgroundColor: "#646262", borderBottomLeftRadius: 0 },
+  messageText: { color: "#fff" ,fontSize: 14},
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 10,
-    borderTopWidth: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderWidth: 1,
     borderColor: "#ccc",
+    backgroundColor: "#fff",
+    borderRadius: 25,
+    margin: 8,
   },
   input: {
     flex: 1,
     height: 40,
-    borderWidth: 1,
+    // borderWidth: 1,
     borderRadius: 20,
-    paddingHorizontal: 10,
+    paddingHorizontal: 20,
     marginRight: 10,
+    borderColor: "#ccc",
   },
   sendButton: { backgroundColor: "#2467EC", padding: 10, borderRadius: 20 },
-  sendButtonText: { color: "#fff" },
 });
 
 export default IndividualChat;
