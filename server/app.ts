@@ -13,6 +13,8 @@ import layoutRouter from "./routes/layout.route";
 import { rateLimit } from "express-rate-limit";
 import counselorRouter from "./routes/counselor.route";
 import aiRouter from "./routes/ai.route";
+import chatRouter from "./routes/chat.route";
+import messageRouter from "./routes/message.route";
 
 app.use(cors());
 
@@ -44,6 +46,9 @@ app.use(
   analyticsRouter,
   layoutRouter
 );
+
+app.use("/api/v1/chat-app/chats", chatRouter);
+app.use("/api/v1/chat-app/messages", messageRouter);
 
 // testing api
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {

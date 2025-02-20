@@ -1,103 +1,146 @@
-import React from "react";
-import { SERVER_URI } from "@/utils/uri";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  FlatList,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+} from "react-native";
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
-import {
-  useFonts,
-  Raleway_700Bold,
-  Raleway_600SemiBold,
-} from "@expo-google-fonts/raleway";
-import {
-  Nunito_400Regular,
-  Nunito_700Bold,
-  Nunito_500Medium,
-  Nunito_600SemiBold,
-} from "@expo-google-fonts/nunito";
+import { SERVER_URI } from "@/utils/uri";
 import Loader from "@/components/loader/loader";
 import { LinearGradient } from "expo-linear-gradient";
-import CourseCard from "@/components/cards/course.card";
-import ChatToggleButtons from "@/components/chat/Chat.toggle.buttons";
-import NoChatPlaceholder from "@/components/chat/nochat.placeholder";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
+import useUser from "@/hooks/auth/useUser";
 
 export default function ChatScreen() {
-    const [selected, setSelected] = useState<'ai' | 'regular'>('ai');
-  const [courses, setCourses] = useState<CoursesType[]>([]);
-  const [originalCourses, setOriginalCourses] = useState<CoursesType[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [categories, setcategories] = useState([]);
-  const [activeCategory, setactiveCategory] = useState("All");
+  const [chats, setChats] = useState([]);
+  const [loadingChats, setLoadingChats] = useState(true);
+  const { user } = useUser();
 
   useEffect(() => {
-    axios
-      .get(`${SERVER_URI}/get-layout/Categories`)
-      .then((res) => {
-        setcategories(res.data?.layout?.categories);
-        fetchCourses();
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.log(error);
-        setLoading(false);
-      });
+    (async () => {
+      try {
+        const accessToken = await AsyncStorage.getItem("access_token");
+        const refreshToken = await AsyncStorage.getItem("refresh_token");
+
+        const response = await axios.get(`${SERVER_URI}/chat-app/chats`, {
+          headers: {
+            "access-token": accessToken,
+            "refresh-token": refreshToken,
+          },
+        });
+
+        setChats(response.data.data);
+      } catch (error) {
+        console.error("Error fetching chats:", error);
+      } finally {
+        setLoadingChats(false);
+      }
+    })();
   }, []);
 
-  const fetchCourses = () => {
-    axios
-      .get(`${SERVER_URI}/get-courses`)
-      .then((res: any) => {
-        setCourses(res.data.courses);
-        setOriginalCourses(res.data.courses);
-        setLoading(false);
-      })
-      .catch((error) => {
-        setLoading(false);
-        console.log(error);
-      });
-  };
-
-  let [fontsLoaded, fontError] = useFonts({
-    Raleway_700Bold,
-    Nunito_400Regular,
-    Nunito_700Bold,
-    Nunito_500Medium,
-    Nunito_600SemiBold,
-    Raleway_600SemiBold,
-  });
-
-  if (!fontsLoaded && !fontError) {
-    return null;
-  }
-
-  const handleCategories = (e: string) => {
-    setactiveCategory(e);
-    if (e === "All") {
-      setCourses(originalCourses);
-    } else {
-      const filterCourses = originalCourses.filter(
-        (i: CoursesType) => i.categories === e
-      );
-      setCourses(filterCourses);
-    }
-  };
+  if (loadingChats) return <Loader />;
 
   return (
-    <>
-      {loading ? (
-        <Loader />
-      ) : (
-        <LinearGradient
-          colors={["#E5ECF9", "#F6F7F9"]}
-          style={{ flex: 1, paddingTop: 32}}
-        >
-          <View style={{ paddingTop: 10,alignItems:'center' }}>
-            <ChatToggleButtons selected={selected} setSelected={setSelected} />
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <NoChatPlaceholder selected={selected} />
-            </ScrollView>
-          </View>
-        </LinearGradient>
-      )}
-    </>
+    <LinearGradient colors={["#E5ECF9", "#F6F7F9"]} style={styles.gradientBackground}>
+      <View style={styles.container}>
+        <Text style={styles.header}>Previous Chats</Text>
+
+        <FlatList
+          data={chats}
+          keyExtractor={(chat: any) => chat._id}
+          renderItem={({ item: chat }) => {
+            const receiver = chat.participants.find(
+              (participant: any) => participant._id !== user?._id
+            );
+            const profileImage = receiver?.avatar.url || "https://up.yimg.com/ib/th?id=OIP.4Q7-yMnrlnqwR4ORH7c06AHaHa&pid=Api&rs=1&c=1&qlt=95&w=121&h=121";
+
+            return (
+              <TouchableOpacity
+                style={styles.chatCard}
+                onPress={() =>
+                  router.push({
+                    pathname: `(routes)/individual-chat`,
+                    params: {
+                      userId: user?._id,
+                      receiverId: receiver?._id,
+                      currentChat: JSON.stringify(chat),
+                    },
+                  })
+                }
+              >
+                {/* User Image */}
+                <Image source={{ uri: profileImage }} style={styles.avatar} />
+
+                <View style={styles.chatInfo}>
+                  <Text style={styles.chatName}>{receiver?.name || "Counselor"}</Text>
+                  <Text style={styles.chatMessage} numberOfLines={1}>
+                    {chat?.lastMessage?.content || "Tap to start chatting..."}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          }}
+          ListEmptyComponent={<Text style={styles.emptyText}>No chats found</Text>}
+        />
+      </View>
+    </LinearGradient>
   );
 }
+
+const styles = StyleSheet.create({
+  gradientBackground: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  container: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginBottom: 22,
+  },
+  header: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  chatCard: {
+    flexDirection: "row", // Align image & text
+    alignItems: "center",
+    padding: 8,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3, // For Android shadow
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 12,
+  },
+  chatInfo: {
+    flex: 1, // Take remaining space
+  },
+  chatName: {
+    fontSize: 18,
+    fontWeight: "500",
+    marginBottom: 2,
+  },
+  chatMessage: {
+    fontSize: 14,
+    color: "#666",
+  },
+  emptyText: {
+    textAlign: "center",
+    fontSize: 16,
+    marginTop: 20,
+    color: "#888",
+  },
+});

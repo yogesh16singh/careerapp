@@ -2,8 +2,11 @@ import { app } from "./app";
 import { v2 as cloudinary } from "cloudinary";
 import http from "http";
 import connectDB from "./utils/db";
-import { initSocketServer } from "./socketServer";
+import { Server } from "socket.io";
+import { initializeSocketIO } from "./socketServer";
+
 require("dotenv").config();
+
 const server = http.createServer(app);
 
 // cloudinary config
@@ -13,7 +16,18 @@ cloudinary.config({
   api_secret: process.env.CLOUD_SECRET_KEY,
 });
 
-initSocketServer(server);
+const io = new Server(server, {
+  pingTimeout: 60000,
+  cors: {
+    origin: '*',
+    credentials: true,
+  },
+});
+
+app.set("io", io);
+
+initializeSocketIO(io);
+
 
 // create server
 server.listen(process.env.PORT, () => {

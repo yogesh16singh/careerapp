@@ -44,6 +44,27 @@ export default function CounselorDetailScreen() {
   if (!fontsLoaded && !fontError) {
     return null;
   }
+  const redirectToChat = async () => {
+    try{
+      const accessToken = await AsyncStorage.getItem("access_token");
+      const refreshToken = await AsyncStorage.getItem("refresh_token");
+      await axios.post(
+        `${SERVER_URI}/chat-app/chats/c/${counselor._id}`,
+        {
+          headers: {
+            "access-token": accessToken,
+            "refresh-token": refreshToken,
+          },
+        }
+      );
+    } catch (error) {
+      console.error("error", error);
+    }
+    router.push({
+      pathname: "/(routes)/individual-chat",
+      params: { counselorId: counselor._id },
+    });
+  }
   const handlePayment = async () => {
     try {
       const accessToken = await AsyncStorage.getItem("access_token");
@@ -283,7 +304,7 @@ export default function CounselorDetailScreen() {
             >
               <View style={{ width: "100%", alignContent: "center" }}>
                 <TouchableOpacity
-                  onPress={() => {}}
+                  onPress={() => {redirectToChat()}}
                   style={{
                     backgroundColor: "#007BFF",
                     padding: 10,

@@ -53,6 +53,14 @@ function RootLayoutNav() {
         <Stack.Screen name="(routes)/sign-up/index" />
         <Stack.Screen name="(routes)/forgot-password/index" />
         <Stack.Screen
+         name="(routes)/individual-chat/index" 
+         options={{
+          headerShown: true,
+          title: "Chat",
+          headerBackTitle: "Back",
+        }}
+         />
+        <Stack.Screen
           name="(routes)/course-details/index"
           options={{
             headerShown: true,
