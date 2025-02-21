@@ -7,22 +7,25 @@ import {
 
 export const styles = StyleSheet.create({
   linearcontainer: {
-    padding: 4,
-    borderRadius: 4,
-    shadowColor: "#000",
+    padding: 6,
+    borderRadius: 10,
     margin: 6,
-    marginTop: 16,
-  },
-  container: {
-    padding: 8,
-    backgroundColor: "#ffffff",
-    borderRadius: 4,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-    margin: 16,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  container: {
+    padding: 12,
+    backgroundColor: "#ffffff",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
+    alignItems: "center",
   },
   heading: {
     fontSize: wp("5.4%"),
