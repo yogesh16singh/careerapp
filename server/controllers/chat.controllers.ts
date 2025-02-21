@@ -138,12 +138,10 @@ const searchAvailableUsers = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, users, "Users fetched successfully"));
 });
 
-const createOrGetAOneOnOneChat = asyncHandler(async (req, res) => {
+const createOrGetAOneOnOneChat = asyncHandler(async (req: any, res: any) => {
   const { receiverId } = req.params;
-
   // Check if it's a valid receiver
   const receiver = await userModel.findById(receiverId);
-  // console.log("receiver", receiver);
   if (!receiver) {
     throw new ApiError(404, "Receiver does not exist");
   }
@@ -160,7 +158,7 @@ const createOrGetAOneOnOneChat = asyncHandler(async (req, res) => {
         // Also, filter chats with participants having receiver and logged in user only
         $and: [
           {
-            participants: { $elemMatch: { $eq: req.user._id } },
+            participants: { $elemMatch: { $eq: new mongoose.Types.ObjectId(req.user._id) } },
           },
           {
             participants: {
@@ -172,7 +170,7 @@ const createOrGetAOneOnOneChat = asyncHandler(async (req, res) => {
     },
     ...chatCommonAggregation(),
   ]);
-  // console.log("chat", chat);
+  console.log("chat", chat[0]);
   if (chat.length) {
     // if we find the chat that means user already has created a chat
     return res
@@ -204,7 +202,7 @@ const createOrGetAOneOnOneChat = asyncHandler(async (req, res) => {
   }
 
   // logic to emit socket event about the new chat added to the participants
-  payload?.participants?.forEach((participant) => {
+  payload?.participants?.forEach((participant: any) => {
     if (participant._id.toString() === req.user._id.toString()) return; // don't emit the event for the logged in use as he is the one who is initiating the chat
 
     // emit event to other participants with new chat as a payload

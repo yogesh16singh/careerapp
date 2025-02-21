@@ -214,8 +214,9 @@ export const verifyPayment = CatchAsyncError(
 
 export const updateUserPaymentStatus = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
-    try {
+    try { 
       const { userId, counselorId } = req.body;
+      await redis.del(userId);
       // Add counselorId to user's purchasedCounselors array
       await userModel.findByIdAndUpdate(userId, {
         $addToSet: { purchasedCounselors: counselorId },
@@ -235,8 +236,6 @@ export const updateUserPaymentStatus = CatchAsyncError(
           "A new student has booked your session!"
         );
       }
-
-      await redis.del(userId);
       res.json({ message: "Payment data updated successfully!" });
     } catch (error: any) {
       res.status(400).json({ error: error.message });

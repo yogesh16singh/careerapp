@@ -26,7 +26,7 @@ import RazorpayCheckout from "react-native-razorpay";
 
 export default function CounselorDetailScreen() {
   const { item } = useLocalSearchParams();
-  const { user } = useUser();
+  const { user, setRefetch } = useUser();
 
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const counselor: any = JSON.parse(item as string);
@@ -45,10 +45,10 @@ export default function CounselorDetailScreen() {
     return null;
   }
   const redirectToChat = async () => {
-    try{
+    try {
       const accessToken = await AsyncStorage.getItem("access_token");
       const refreshToken = await AsyncStorage.getItem("refresh_token");
-      await axios.post(
+      const res = await axios.post(
         `${SERVER_URI}/chat-app/chats/c/${counselor._id}`,
         {
           headers: {
@@ -57,14 +57,20 @@ export default function CounselorDetailScreen() {
           },
         }
       );
+      if (res.data.statusCode === 201 || res.data.statusCode === 200) {
+        router.push({
+          pathname: "/(routes)/individual-chat",
+          params: {
+            userId: user?._id,
+            receiverId: counselor?._id,
+            currentChat: JSON.stringify(res?.data?.data),
+          },
+        });
+      }
     } catch (error) {
       console.error("error", error);
     }
-    router.push({
-      pathname: "/(routes)/individual-chat",
-      params: { counselorId: counselor._id },
-    });
-  }
+  };
   const handlePayment = async () => {
     try {
       const accessToken = await AsyncStorage.getItem("access_token");
@@ -104,7 +110,7 @@ export default function CounselorDetailScreen() {
       } else {
         await axios.post(
           `${SERVER_URI}/update-payment-status`,
-          { userId: user?._id, counselorId: counselor._id },
+          { userId: user?._id, counselorId: counselor?._id },
           {
             headers: {
               "access-token": accessToken,
@@ -112,6 +118,7 @@ export default function CounselorDetailScreen() {
             },
           }
         );
+        setRefetch((prev) => !prev);
       }
     } catch (error) {
       console.error(error);
@@ -304,7 +311,9 @@ export default function CounselorDetailScreen() {
             >
               <View style={{ width: "100%", alignContent: "center" }}>
                 <TouchableOpacity
-                  onPress={() => {redirectToChat()}}
+                  onPress={() => {
+                    redirectToChat();
+                  }}
                   style={{
                     backgroundColor: "#007BFF",
                     padding: 10,
