@@ -16,9 +16,14 @@ const HomeTopTextBox = () => {
     return null;
   }
   return (
-    <LinearGradient colors={["#6a11cb", "#2575fc"]} style={styles.linearcontainer}>
+    <LinearGradient
+      colors={["#ff7eb3", "#ff758c", "#ff7eb3", "#6a11cb", "#2575fc"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.linearcontainer}
+    >
       <View style={styles.container}>
-        <Text style={styles.heading}>Welcome to Your Future</Text>
+        <Text style={styles.heading}>🎉 Welcome to GuidEd 🎉</Text>
         <Text style={styles.description}>
           Discover your path, connect with expert counselors, and explore
           endless opportunities.
