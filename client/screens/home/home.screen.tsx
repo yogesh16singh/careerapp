@@ -7,6 +7,7 @@ import AllCourses from "@/components/courses/all.courses";
 import HomeTopTextBox from "@/components/home/home.toptext.box";
 import DashboardGrid from "@/components/home/home.button.grid";
 import FeaturedCounselors from "@/components/home/Featured.counselors";
+import Testimonials from "@/components/home/testimonial";
 
 export default function HomeScreen() {
   return (
@@ -20,6 +21,7 @@ export default function HomeScreen() {
         <HomeTopTextBox />
         <DashboardGrid />
         <FeaturedCounselors />
+        <Testimonials />
         <HomeBannerSlider />
         <AllCourses />
       </ScrollView>

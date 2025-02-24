@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 12,
-    color: '#333',
+    color: '#36ACD5',
   },
   card: {
     flexDirection: 'row',
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#36ACD5',
   },
   expertise: {
     fontSize: 12,
