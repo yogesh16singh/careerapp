@@ -1,34 +1,55 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
-type IconName = 
-  | 'account' 
-  | 'clipboard-text' 
-  | 'book' 
-  | 'briefcase-account';
+type IconName = 'account' | 'clipboard-text' | 'book' | 'briefcase-account';
 
 const DashboardGrid = () => {
-  const data: { id: number; title: string; icon: IconName; color: string }[]  = [
-    { id: 1, title: 'Book Counseling', icon: 'account', color: '#0e65f0' },
-    { id: 2, title: 'Career Assessment', icon: 'clipboard-text', color: '#0e65f0' },
-    { id: 3, title: 'Resource Library', icon: 'book', color: '#0e65f0' },
-    { id: 4, title: 'Opportunities', icon: 'briefcase-account', color: '#0e65f0' },
+  const data: { id: number; title: string; icon: IconName; gradient: string[] }[] = [
+    { id: 1, title: 'Book Counseling', icon: 'account', gradient: ['#6a11cb', '#2575fc'] },
+    { id: 2, title: 'Career Assessment', icon: 'clipboard-text', gradient: ['#ff7eb3', '#ff758c'] },
+    { id: 3, title: 'Resource Library', icon: 'book', gradient: ['#f7971e', '#ffd200'] },
+    { id: 4, title: 'Opportunities', icon: 'briefcase-account', gradient: ['#00c6ff', '#0072ff'] },
   ];
 
+  const [scale] = useState(new Animated.Value(1));
+
+  const handlePressIn = () => {
+    Animated.spring(scale, {
+      toValue: 0.85,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scale, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
 
   return (
     <View style={styles.gridContainer}>
       {data.map((item) => (
-        <TouchableOpacity onPress={() => {
-          if (item.title === 'Book Counseling') {
-            router.push('/(tabs)/search');
-          }
-        }} key={item.id} style={styles.card}>
-          <MaterialCommunityIcons name={item.icon} size={40} color={item.color} />
-          <Text style={styles.cardTitle}>{item.title}</Text>
-        </TouchableOpacity>
+        <Animated.View key={item.id} style={[styles.cardWrapper, { transform: [{ scale }] }]}>
+          <TouchableOpacity
+            onPress={() => {
+              if (item.title === 'Book Counseling') {
+                router.push('/(tabs)/search');
+              }
+            }}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            style={styles.cardShadow}
+          >
+            <LinearGradient colors={item.gradient} style={styles.card}>
+              <MaterialCommunityIcons name={item.icon} size={40} color="#fff" />
+              <Text style={styles.cardTitle}>{item.title}</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </Animated.View>
       ))}
     </View>
   );
@@ -41,23 +62,24 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
   },
+  cardWrapper: {
+    width: '48%',
+    borderRadius: 14,
+    overflow: 'hidden',
+  },
+  cardShadow: {
+    borderRadius: 14,
+  },
   card: {
-    width: '45%',
-    backgroundColor: '#F5F5FF',
-    borderRadius: 12,
-    padding: 12,
+    padding: 16,
     alignItems: 'center',
+    borderRadius: 14,
     marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
   cardTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#4A4A4A',
+    color: '#fff',
     marginTop: 8,
     textAlign: 'center',
   },
