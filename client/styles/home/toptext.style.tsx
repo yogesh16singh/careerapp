@@ -9,7 +9,8 @@ export const styles = StyleSheet.create({
   linearcontainer: {
     padding: 6,
     borderRadius: 10,
-    margin: 6,
+    marginHorizontal: 12,
+    marginTop: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
