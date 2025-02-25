@@ -9,6 +9,7 @@ import DashboardGrid from "@/components/home/home.button.grid";
 import FeaturedCounselors from "@/components/home/Featured.counselors";
 import Testimonials from "@/components/home/testimonial";
 import LatestArticles from "@/components/home/latestArticles";
+import UpcomingEvents from "@/components/home/upcoming.webinar";
 
 export default function HomeScreen() {
   return (
@@ -24,6 +25,7 @@ export default function HomeScreen() {
         <FeaturedCounselors />
         <Testimonials />
         <LatestArticles />
+        <UpcomingEvents />
         <HomeBannerSlider />
         <AllCourses />
       </ScrollView>
