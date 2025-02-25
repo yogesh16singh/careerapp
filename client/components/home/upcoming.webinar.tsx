@@ -60,6 +60,7 @@ const UpcomingEvents = () => {
 const styles = StyleSheet.create({
   container: {
     marginTop: 16,
+    // marginBottom: 16,
     paddingHorizontal: 16,
   },
   header: {
@@ -83,7 +84,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginRight: 12,
-    width: 250,
+    width: 270,
     // shadowColor: '#000',
     // shadowOffset: { width: 0, height: 2 },
     // shadowOpacity: 0.1,

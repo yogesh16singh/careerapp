@@ -23,11 +23,11 @@ export default function HomeScreen() {
         <HomeTopTextBox />
         <DashboardGrid />
         <FeaturedCounselors />
-        <Testimonials />
         <LatestArticles />
         <UpcomingEvents />
-        <HomeBannerSlider />
-        <AllCourses />
+        <Testimonials />
+        {/* <HomeBannerSlider /> */}
+        {/* <AllCourses /> */}
       </ScrollView>
     </LinearGradient>
   );

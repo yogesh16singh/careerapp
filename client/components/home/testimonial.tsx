@@ -61,6 +61,7 @@ const Testimonials = () => {
 const styles = StyleSheet.create({
   container: {
     marginTop: 16,
+    marginBottom: 16,
     paddingHorizontal: 16,
   },
   header: {
@@ -72,7 +73,8 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#E69416',
+    // color: '#E69416',
+    color: '#333',
   },
   viewAll: {
     fontSize: 14,
@@ -80,13 +82,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   card: {
-    backgroundColor: '#F0E2CD',
-    borderColor: '#E69416',
-    borderWidth: 2,
+    // backgroundColor: '#F0E2CD',
+    // backgroundColor: '#C8E8F2',
+    backgroundColor: '#fff',
+    // borderColor: '#E69416',
+    // borderWidth: 1,
     borderRadius: 12,
     padding: 12,
     marginRight: 12,
-    width: 220,
+    width: 270,
     alignItems: 'center',
   },
   image: {
