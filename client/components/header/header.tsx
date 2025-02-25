@@ -11,13 +11,13 @@ export default function Header() {
 
   const { user } = useUser();
 
-  let [fontsLoaded, fontError] = useFonts({
-    Raleway_700Bold,
-  });
+  // let [fontsLoaded, fontError] = useFonts({
+  //   Raleway_700Bold,
+  // });
 
-  if (!fontsLoaded && !fontError) {
-    return null;
-  }
+  // if (!fontsLoaded && !fontError) {
+  //   return null;
+  // }
 
   // Get the current time and set appropriate greeting
   const getGreeting = () => {
