@@ -44,39 +44,65 @@ export default function ChatScreen() {
 
   if (loadingChats) return <Loader />;
 
+  // Static AI Chat Item
+  const aiChat = {
+    _id: "ai-chat",
+    name: "AI Career Assistant",
+    lastMessage: { content: "Ask me anything about your career!" },
+    avatar: "https://cdn-icons-png.flaticon.com/512/4712/4712037.png", // AI Bot Icon
+  };
+
+  // Combine AI Chat with user chats
+  const chatList = [aiChat, ...chats];
+
   return (
     <LinearGradient colors={["#E5ECF9", "#F6F7F9"]} style={styles.gradientBackground}>
       <View style={styles.container}>
         <Text style={styles.header}>Previous Chats</Text>
 
         <FlatList
-          data={chats}
+          data={chatList}
           keyExtractor={(chat: any) => chat._id}
           renderItem={({ item: chat }) => {
-            const receiver = chat.participants.find(
-              (participant: any) => participant._id !== user?._id
-            );
-            const profileImage = receiver?.avatar.url || "https://up.yimg.com/ib/th?id=OIP.4Q7-yMnrlnqwR4ORH7c06AHaHa&pid=Api&rs=1&c=1&qlt=95&w=121&h=121";
+            const isAIChat = chat._id === "ai-chat";
+            let receiver = null;
+            if(!isAIChat){
+               receiver = chat?.participants.find(
+                (participant: any) => participant._id !== user?._id
+              );
+            }
+            const profileImage = isAIChat
+              ? chat.avatar
+              : receiver?.avatar?.url || "https://up.yimg.com/ib/th?id=OIP.4Q7-yMnrlnqwR4ORH7c06AHaHa&pid=Api&rs=1&c=1&qlt=95&w=121&h=121";
 
             return (
               <TouchableOpacity
                 style={styles.chatCard}
                 onPress={() =>
-                  router.push({
-                    pathname: `(routes)/individual-chat`,
-                    params: {
-                      userId: user?._id,
-                      receiverId: receiver?._id,
-                      currentChat: JSON.stringify(chat),
-                    },
-                  })
+                  isAIChat
+                    ? router.push({
+                      pathname: `(routes)/ai-chat`,
+                      params: {
+                        userId: user?._id
+                      },
+                    }) 
+                    : router.push({
+                        pathname: `(routes)/individual-chat`,
+                        params: {
+                          userId: user?._id,
+                          receiverId: receiver?._id,
+                          currentChat: JSON.stringify(chat),
+                        },
+                      })
                 }
               >
                 {/* User Image */}
                 <Image source={{ uri: profileImage }} style={styles.avatar} />
 
                 <View style={styles.chatInfo}>
-                  <Text style={styles.chatName}>{receiver?.name || "Counselor"}</Text>
+                  <Text style={[styles.chatName, isAIChat && styles.aiChatText]}>
+                    {isAIChat ? "AI Career Assistant" : receiver?.name || "Counselor"}
+                  </Text>
                   <Text style={styles.chatMessage} numberOfLines={1}>
                     {chat?.lastMessage?.content || "Tap to start chatting..."}
                   </Text>
@@ -137,6 +163,9 @@ const styles = StyleSheet.create({
   chatMessage: {
     fontSize: 14,
     color: "#666",
+  },
+  aiChatText: {
+    color: "#007BFF",
   },
   emptyText: {
     textAlign: "center",

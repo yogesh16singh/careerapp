@@ -60,6 +60,14 @@ function RootLayoutNav() {
           headerBackTitle: "Back",
         }}
          />
+         <Stack.Screen
+         name="(routes)/ai-chat/index" 
+         options={{
+          headerShown: true,
+          title: "Chat",
+          headerBackTitle: "Back",
+        }}
+         />
         <Stack.Screen
           name="(routes)/course-details/index"
           options={{
@@ -128,7 +136,7 @@ function RootLayoutNav() {
           name="(routes)/ai-form/index"
           options={{
             headerShown: true,
-            title: "Chat with AI",
+            title: "AI Screening Form",
             headerBackTitle: "Back",
           }}
         />

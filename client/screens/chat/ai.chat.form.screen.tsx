@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import axios from "axios";
+import { useNavigation } from "expo-router";
 import { SERVER_URI } from "@/utils/uri";
 
 const questions = [
@@ -118,7 +120,7 @@ const CareerChat = () => {
     try {
       const response = await axios.post(`${SERVER_URI}/career-suggestion-ai`, {
         answers,
-      }); 
+      });
       console.log("response", response.data);
       setCareerSuggestion(response.data.data);
       setButtonSpinner(false);
@@ -128,6 +130,26 @@ const CareerChat = () => {
     }
   };
 
+  const navigation = useNavigation();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => (
+        <View style={{ flexDirection: "row", alignItems: "center", right: 22 }}>
+          <Image
+            source={{
+              uri: "https://cdn-icons-png.flaticon.com/512/4712/4712037.png",
+            }}
+            style={{ width: 40, height: 40, borderRadius: 20, marginRight: 12 }}
+          />
+          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+            AI Screening Form
+          </Text>
+        </View>
+      ),
+    });
+  }, [navigation]);
+
   return (
     <ScrollView style={{ flex: 1, padding: 20 }}>
       {!careerSuggestion ? (
@@ -135,29 +157,29 @@ const CareerChat = () => {
           <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 20 }}>
             {questions[step].question}
           </Text>
-          <View style ={{ minHeight: 460 }}>
-          {questions[step].options.map((option, index) => (
-            <TouchableOpacity
-              key={index}
-              style={{
-                backgroundColor:
-                  answers[questions[step].id] === option
-                    ? "#0a1359"
-                    : "#7481e3",
-                padding: 10,
-                marginVertical: 5,
-                borderRadius: 8,
-                borderColor: "#e8cc15",
-                borderWidth: answers[questions[step].id] === option ? 2 : 0,
-              }}
-              onPress={() => handleSelectOption(questions[step].id, option)}
-            >
-              <Text style={{ color: "#fff", textAlign: "center" }}>
-                {option}
-              </Text>
-            </TouchableOpacity>
-          ))}
-            </View>
+          <View style={{ minHeight: 460 }}>
+            {questions[step].options.map((option, index) => (
+              <TouchableOpacity
+                key={index}
+                style={{
+                  backgroundColor:
+                    answers[questions[step].id] === option
+                      ? "#0a1359"
+                      : "#7481e3",
+                  padding: 10,
+                  marginVertical: 5,
+                  borderRadius: 8,
+                  borderColor: "#e8cc15",
+                  borderWidth: answers[questions[step].id] === option ? 2 : 0,
+                }}
+                onPress={() => handleSelectOption(questions[step].id, option)}
+              >
+                <Text style={{ color: "#fff", textAlign: "center" }}>
+                  {option}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
           <View
             style={{
               flexDirection: "row",
