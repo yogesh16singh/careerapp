@@ -16,6 +16,7 @@ import userModel from "../models/user.model";
 
 export const getAllCounselors = CatchAsyncError(
     async (req: Request, res: Response, next: NextFunction) => {
+      console.log("Get all counselors");
       try {
         // Check if counselors are cached in Redis
         // const isCacheExist = await redis.get("allCounselors");
