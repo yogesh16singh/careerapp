@@ -9,6 +9,7 @@ const ErrorHandler_1 = __importDefault(require("../utils/ErrorHandler"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const redis_1 = require("../utils/redis");
 const user_controller_1 = require("../controllers/user.controller");
+const user_model_1 = __importDefault(require("../models/user.model"));
 // authenticated user
 exports.isAuthenticated = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res, next) => {
     const access_token = req.cookies.access_token;
@@ -23,16 +24,20 @@ exports.isAuthenticated = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, re
     // check if the access token is expired
     if (decoded.exp && decoded.exp <= Date.now() / 1000) {
         try {
-            await (0, user_controller_1.updateAccessToken)(req, res, next);
+            (0, user_controller_1.updateAccessToken)(req, res, next);
         }
         catch (error) {
-            new ErrorHandler_1.default("Please login to acces this resource", 400);
+            new ErrorHandler_1.default("Please login to access this resource", 400);
         }
     }
     else {
-        const user = await redis_1.redis.get(decoded.id);
+        let user = await redis_1.redis.get(decoded.id);
         if (!user) {
-            return next(new ErrorHandler_1.default("Please login to access this resource", 400));
+            let parseduser = await user_model_1.default.findById(decoded.id);
+            user = JSON.stringify(parseduser);
+            if (!user) {
+                return next(new ErrorHandler_1.default("Please login to access this resource", 400));
+            }
         }
         req.user = JSON.parse(user);
         next();

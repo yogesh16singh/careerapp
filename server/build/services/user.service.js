@@ -16,6 +16,14 @@ const getUserById = async (id, res) => {
             user,
         });
     }
+    else {
+        const user = await user_model_1.default.findById(id);
+        await redis_1.redis.set(id, JSON.stringify(user));
+        res.status(201).json({
+            success: true,
+            user,
+        });
+    }
 };
 exports.getUserById = getUserById;
 // Get all users

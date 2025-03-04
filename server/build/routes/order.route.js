@@ -11,4 +11,7 @@ orderRouter.post("/create-order", auth_1.isAuthenticated, order_controller_1.cre
 orderRouter.get("/get-orders", auth_1.isAuthenticated, (0, auth_1.authorizeRoles)("admin"), order_controller_1.getAllOrders);
 orderRouter.get("/payment/stripepublisahblekey", order_controller_1.sendStripePublshableKey);
 orderRouter.post("/payment", auth_1.isAuthenticated, order_controller_1.newPayment);
+orderRouter.post("/update-payment-status", auth_1.isAuthenticated, order_controller_1.updateUserPaymentStatus);
+orderRouter.post("/create-order-rp", auth_1.isAuthenticated, order_controller_1.createOrderRP);
+orderRouter.post("/verify-payment", auth_1.isAuthenticated, order_controller_1.verifyPayment);
 exports.default = orderRouter;

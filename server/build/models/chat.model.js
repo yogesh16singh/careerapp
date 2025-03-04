@@ -24,13 +24,29 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const NotificationSchema = new mongoose_1.Schema({
-    userId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "UserModel", required: true },
-    title: { type: String, required: true },
-    body: { type: String, required: true },
-    data: { type: Object, default: {} },
-    isRead: { type: Boolean, default: false },
-    createdAt: { type: Date, default: Date.now },
-});
-const NotificationModel = mongoose_1.default.model("Notification", NotificationSchema);
-exports.default = NotificationModel;
+const chatSchema = new mongoose_1.Schema({
+    name: {
+        type: String,
+        required: true,
+    },
+    isGroupChat: {
+        type: Boolean,
+        default: false,
+    },
+    lastMessage: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: "ChatMessage",
+    },
+    participants: [
+        {
+            type: mongoose_1.Schema.Types.ObjectId,
+            ref: "User",
+        },
+    ],
+    admin: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: "User",
+    },
+}, { timestamps: true });
+const Chat = mongoose_1.default.model("Chat", chatSchema);
+exports.default = Chat;

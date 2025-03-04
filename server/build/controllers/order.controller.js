@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.newPayment = exports.sendStripePublshableKey = exports.getAllOrders = exports.createOrder = void 0;
+exports.updateUserPaymentStatus = exports.verifyPayment = exports.createOrderRP = exports.newPayment = exports.sendStripePublshableKey = exports.getAllOrders = exports.createOrder = void 0;
 const catchAsyncErrors_1 = require("../middleware/catchAsyncErrors");
 const user_model_1 = __importDefault(require("../models/user.model"));
 const ErrorHandler_1 = __importDefault(require("../utils/ErrorHandler"));
@@ -14,6 +14,9 @@ const path_1 = __importDefault(require("path"));
 const ejs_1 = __importDefault(require("ejs"));
 const notification_model_1 = __importDefault(require("../models/notification.model"));
 const redis_1 = require("../utils/redis");
+const razorpay_1 = __importDefault(require("razorpay"));
+const crypto_1 = __importDefault(require("crypto"));
+const notification_controller_1 = require("./notification.controller");
 require("dotenv").config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 // create order
@@ -103,6 +106,9 @@ exports.sendStripePublshableKey = (0, catchAsyncErrors_1.CatchAsyncError)(async 
 //ney payment
 exports.newPayment = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res, next) => {
     try {
+        const customer = await stripe.customers.create(); // Create a new customer
+        const ephemeralKey = await stripe.ephemeralKeys.create({ customer: customer.id }, { apiVersion: "2023-10-16" } // Use the latest API version
+        );
         const myPayment = await stripe.paymentIntents.create({
             amount: req.body.amount,
             currency: "USD",
@@ -113,10 +119,76 @@ exports.newPayment = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res, ne
                 enabled: true,
             },
         });
+        console.log("myPayment", myPayment);
         res.status(200).json({
             success: true,
             client_secret: myPayment.client_secret,
+            ephemeralKey: ephemeralKey.secret,
+            customer: customer.id,
         });
     }
-    catch (error) { }
+    catch (error) {
+        console.error("error", error);
+    }
+});
+const razorpay = new razorpay_1.default({
+    key_id: process.env.RAZORPAY_KEY_ID || "",
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+exports.createOrderRP = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res, next) => {
+    try {
+        const { amount, currency } = req.body;
+        const options = {
+            amount: amount * 100, // Amount in paisa (e.g., 50000 = ₹500)
+            currency: currency || "INR",
+            receipt: `receipt_${Math.random() * 1000}`,
+        };
+        const order = await razorpay.orders.create(options);
+        res.json(order);
+    }
+    catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+exports.verifyPayment = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res, next) => {
+    try {
+        const { order_id, payment_id, signature } = req.body;
+        const generated_signature = crypto_1.default
+            .createHmac("sha256", "your_key_secret")
+            .update(`${order_id}|${payment_id}`)
+            .digest("hex");
+        if (generated_signature === signature) {
+            res.json({ success: true, message: "Payment Verified Successfully" });
+        }
+        else {
+            res
+                .status(400)
+                .json({ success: false, message: "Payment Verification Failed" });
+        }
+    }
+    catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+exports.updateUserPaymentStatus = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res, next) => {
+    try {
+        const { userId, counselorId } = req.body;
+        await redis_1.redis.del(userId);
+        // Add counselorId to user's purchasedCounselors array
+        await user_model_1.default.findByIdAndUpdate(userId, {
+            $addToSet: { purchasedCounselors: counselorId },
+        });
+        // Add userId to counselor's students array
+        await user_model_1.default.findByIdAndUpdate(counselorId, {
+            $addToSet: { students: userId },
+        });
+        const counselor = await user_model_1.default.findById(counselorId);
+        if (counselor && counselor.pushToken) {
+            await (0, notification_controller_1.sendNotification)(counselor._id, counselor.pushToken, "New Booking", "A new student has booked your session!");
+        }
+        res.json({ message: "Payment data updated successfully!" });
+    }
+    catch (error) {
+        res.status(400).json({ error: error.message });
+    }
 });

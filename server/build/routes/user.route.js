@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const user_controller_1 = require("../controllers/user.controller");
 const auth_1 = require("../middleware/auth");
+const user_model_1 = __importDefault(require("../models/user.model"));
 const userRouter = express_1.default.Router();
 userRouter.post('/registration', user_controller_1.registrationUser);
 userRouter.post('/activate-user', user_controller_1.activateUser);
@@ -20,4 +21,12 @@ userRouter.put('/update-user-avatar', auth_1.isAuthenticated, user_controller_1.
 userRouter.get('/get-users', auth_1.isAuthenticated, (0, auth_1.authorizeRoles)("admin"), user_controller_1.getAllUsers);
 userRouter.put('/update-user', auth_1.isAuthenticated, (0, auth_1.authorizeRoles)("admin"), user_controller_1.updateUserRole);
 userRouter.delete('/delete-user', auth_1.isAuthenticated, (0, auth_1.authorizeRoles)("admin"), user_controller_1.deleteUser);
+userRouter.get('/user-counselors/:userId', auth_1.isAuthenticated, async (req, res) => {
+    const user = await user_model_1.default.findById(req.params.userId).populate("purchasedCounselors");
+    res.json(user?.purchasedCounselors || []);
+});
+userRouter.get('/counselor-students/:counselorId', auth_1.isAuthenticated, async (req, res) => {
+    const counselor = await user_model_1.default.findById(req.params.counselorId).populate("students");
+    res.json(counselor?.students || []);
+});
 exports.default = userRouter;

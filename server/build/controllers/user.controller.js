@@ -18,13 +18,13 @@ const user_service_1 = require("../services/user.service");
 const cloudinary_1 = __importDefault(require("cloudinary"));
 exports.registrationUser = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res, next) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, role } = req.body;
         const isEmailExist = await user_model_1.default.findOne({ email });
         if (isEmailExist) {
             return next(new ErrorHandler_1.default("Email already exist", 400));
         }
         const user = {
-            name, email, password
+            name, email, password, role
         };
         const activationToken = (0, exports.createActivationToken)(user);
         const activationCode = activationToken.activationCode;
@@ -68,13 +68,13 @@ exports.activateUser = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res, 
         if (newUser.activationCode !== activation_code) {
             return next(new ErrorHandler_1.default("Invalid activation code", 400));
         }
-        const { name, email, password } = newUser.user;
+        const { name, email, role, password } = newUser.user;
         const existUser = await user_model_1.default.findOne({ email });
         if (existUser) {
             return next(new ErrorHandler_1.default("Email already exist", 400));
         }
         const user = await user_model_1.default.create({
-            name, email, password
+            name, email, password, role
         });
         res.status(201).json({
             success: true,
@@ -133,9 +133,15 @@ exports.updateAccessToken = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, 
         if (!decoded) {
             return next(new ErrorHandler_1.default(message, 400));
         }
-        const session = await redis_1.redis.get(decoded.id);
+        let session = await redis_1.redis.get(decoded.id);
         if (!session) {
-            return next(new ErrorHandler_1.default("Please login for access this resources", 400));
+            console.log("Fetching from DB...");
+            const user = await user_model_1.default.findById(decoded.id);
+            if (!user) {
+                return next(new ErrorHandler_1.default("Please login to access this resource", 400));
+            }
+            session = JSON.stringify(user);
+            await redis_1.redis.set(decoded.id, session, "EX", 604800); // Store in Redis for 7 days
         }
         const user = JSON.parse(session);
         const accessToken = jsonwebtoken_1.default.sign({ id: user._id }, process.env.ACCESS_TOKEN, {
@@ -185,22 +191,21 @@ async (req, res, next) => {
 });
 exports.updateUserInfo = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res, next) => {
     try {
-        const { name } = req.body;
+        const { expertise, experience, availability } = req.body;
         const userId = req.user?._id;
         const user = await user_model_1.default.findById(userId);
-        // if (email && user) {
-        //     const isEmailExist = await userModel.findOne({ email })
-        //     if (isEmailExist) {
-        //         return next(new ErrorHandler("Email already exist", 400))
-        //     }
-        //     user.email = email
-        // }
-        if (name && user) {
-            user.name = name;
+        if (!user) {
+            return next(new ErrorHandler_1.default("User not found", 404));
         }
-        await user?.save();
+        if (expertise)
+            user.expertise = expertise;
+        if (experience)
+            user.experience = experience;
+        if (availability)
+            user.availability = availability;
+        await user.save();
         await redis_1.redis.set(userId, JSON.stringify(user));
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             user
         });
@@ -277,6 +282,7 @@ exports.updateProfilePicture = (0, catchAsyncErrors_1.CatchAsyncError)(async (re
         });
     }
     catch (error) {
+        console.log("error", error);
         return next(new ErrorHandler_1.default(error.message, 400));
     }
 });
