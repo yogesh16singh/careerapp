@@ -27,33 +27,32 @@ const AiIndividualChat = ({ userId }: any) => {
 
   const getMessages = async () => {
     try {
-    //   if (!currentChat?._id) console.log("No chat is selected");
-    //   const res = await axios.get(`${SERVER_URI}/chat-app/messages/${currentChat?._id}`);
-    //   setMessages(res.data.data || []);
+      const res = await axios.get(`${SERVER_URI}/ai-chat-history/`);
+      console.log("response", res.data.data[0].messages);
+      if(res.data.data.length === 0){
+    router.push("/(routes)/ai-form");
+
+      }
+      setMessages(res.data.data[0].messages || []);
     } catch (error) {
       console.error("Error fetching messages:", error);
     }
   };
 
   const sendChatMessage = async () => {
-    if (!currentChat?._id || !socket) return;
-
-    // Notify server that the user stopped typing
-    socket.emit(STOP_TYPING_EVENT, currentChat?._id);
-
     try {
       const formData = new FormData();
       if (message) {
-        formData.append("content", message);
+        formData.append("userMessage", message);
       }
       attachedFiles?.map((file) => {
         formData.append("attachments", file);
       });
       const accessToken = await AsyncStorage.getItem("access_token");
       const response = await axios.post(
-        `${SERVER_URI}/chat-app/messages/${currentChat?._id}`,
+        `${SERVER_URI}/continue-chat`,
         {
-          content: message,
+          userMessage: message,
           attachments: attachedFiles,
         },
         {
@@ -62,11 +61,14 @@ const AiIndividualChat = ({ userId }: any) => {
           },
         }
       );
-
+ 
       // If message is successfully sent, update UI
       setMessage("");
       setAttachedFiles([]);
-      setMessages((prev: any) => [response?.data?.data, ...prev]);
+    getMessages();
+
+      // setMessages((prev: any) => [response?.data?.data, ...prev]);
+
       // updateChatLastMessage(currentChat?._id || "", response.data);
 
       // Emit message to the server via socket
@@ -105,13 +107,11 @@ const AiIndividualChat = ({ userId }: any) => {
 
   useEffect(() => {
     getMessages();
-    router.push("/(routes)/ai-form");
   }, []);
 
   return (
     <View style={styles.container}>
       <FlatList
-        inverted
         style={styles.messageList}
         data={messages}
         keyExtractor={(item, index) => index.toString()}
@@ -119,7 +119,7 @@ const AiIndividualChat = ({ userId }: any) => {
           <View
             style={[
               styles.messageContainer,
-              item?.sender?._id === userId ? styles.sent : styles.received,
+              item?.role === "user" ? styles.sent : styles.received,
             ]}
           >
             <Text style={styles.messageText}>{item.content}</Text>
