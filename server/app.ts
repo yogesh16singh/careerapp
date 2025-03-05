@@ -28,11 +28,13 @@ app.use(cookieParser());
 
 // api request limit
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+  windowMs: 5 * 60 * 1000,
   max: 100,
   standardHeaders: "draft-7",
   legacyHeaders: false,
 });
+
+app.use(limiter);
 
 // routers
 app.use(
@@ -64,8 +66,5 @@ app.all("*", (req: Request, res: Response, next: NextFunction) => {
   err.statusCode = 404;
   next(err);
 });
-
-// midleware call
-app.use(limiter);
 
 app.use(ErrorMidleware);
