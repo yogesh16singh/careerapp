@@ -5,6 +5,7 @@ import cron from "node-cron";
 import userModel from "../models/user.model";
 import axios from "axios";
 import NotificationModel from "../models/notification.model";
+import { sendNotificationToKafka } from "../kafka/producer";
 
 // get all notification by admin
 export const getNotifications = CatchAsyncError(
@@ -47,17 +48,23 @@ export const sendNotification = async (userId: string, expoPushToken: string, ti
       console.error("Expo Push Token is missing");
       return;
     }
-
-    // Send push notification
-    const response = await axios.post(EXPO_PUSH_URL, {
+    //kafka producer
+    await sendNotificationToKafka({
       to: expoPushToken,
       title,
-      body,
-      sound: "default",
-      data: data || {},
+      body
     });
 
-    console.log("Expo Notification Response:", response.data);
+    // Send push notification
+    // const response = await axios.post(EXPO_PUSH_URL, {
+    //   to: expoPushToken,
+    //   title,
+    //   body,
+    //   sound: "default",
+    //   data: data || {},
+    // });
+
+    // console.log("Expo Notification Response:", response.data);
 
     // Store the notification in the database
     const notification = new NotificationModel({

@@ -4,6 +4,7 @@ import http from "http";
 import connectDB from "./utils/db";
 import { Server } from "socket.io";
 import { initializeSocketIO } from "./socketServer";
+import { startNotificationConsumer } from "./kafka/consumer";
 
 require("dotenv").config();
 
@@ -15,6 +16,8 @@ cloudinary.config({
   api_key: process.env.CLOUD_API_KEY,
   api_secret: process.env.CLOUD_SECRET_KEY,
 });
+
+startNotificationConsumer();
 
 const io = new Server(server, {
   pingTimeout: 60000,
