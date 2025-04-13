@@ -49,22 +49,22 @@ export const sendNotification = async (userId: string, expoPushToken: string, ti
       return;
     }
     //kafka producer
-    await sendNotificationToKafka({
-      to: expoPushToken,
-      title,
-      body
-    });
-
-    // Send push notification
-    // const response = await axios.post(EXPO_PUSH_URL, {
+    // await sendNotificationToKafka({
     //   to: expoPushToken,
     //   title,
-    //   body,
-    //   sound: "default",
-    //   data: data || {},
+    //   body
     // });
 
-    // console.log("Expo Notification Response:", response.data);
+    // Send push notification
+    const response = await axios.post(EXPO_PUSH_URL, {
+      to: expoPushToken,
+      title,
+      body,
+      sound: "default",
+      data: data || {},
+    });
+
+    console.log("Expo Notification Response:", response.data);
 
     // Store the notification in the database
     const notification = new NotificationModel({

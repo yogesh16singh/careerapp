@@ -17,7 +17,7 @@ cloudinary.config({
   api_secret: process.env.CLOUD_SECRET_KEY,
 });
 
-startNotificationConsumer();
+// startNotificationConsumer();
 
 const io = new Server(server, {
   pingTimeout: 60000,
